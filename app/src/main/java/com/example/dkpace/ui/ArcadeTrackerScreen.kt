@@ -41,10 +41,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.dkpace.ui.components.ActionButtonsRow
-import com.example.dkpace.ui.components.CurrentLevelCard
 import com.example.dkpace.ui.components.CurrentRunCard
 import com.example.dkpace.ui.components.HeaderSection
 import com.example.dkpace.ui.components.MetricCardsRow
+import com.example.dkpace.ui.components.GoalMetricCard
 import com.example.dkpace.ui.components.LevelMetrics
 import com.example.dkpace.ui.components.PaceChartCard
 import com.example.dkpace.ui.components.PacePoint
@@ -263,19 +263,15 @@ fun ArcadeTrackerScreen() {
                 batterySaverEnabled = true
             })
 
-            // 2. Current Level Card
-            CurrentLevelCard(
-                currentLevel = currentLevel,
-                onPreviousLevel = { if (currentLevel > 4) currentLevel-- },
-                onNextLevel = { if (currentLevel < 21) currentLevel++ }
-            )
+            // 2. Goal takes the former full-width Current Level position
+            GoalMetricCard(value = goal, onValueChange = { goal = it })
 
             // 3. Row of 4 Metric Cards
             MetricCardsRow(
                 score = currentMetrics.score,
                 bonus = currentMetrics.bonus,
                 death = currentMetrics.death,
-                target = goal,
+                currentLevel = currentLevel,
                 onScoreChange = {
                     metricsByLevel[currentLevel] =
                         (metricsByLevel[currentLevel] ?: LevelMetrics()).copy(score = it)
@@ -288,7 +284,8 @@ fun ArcadeTrackerScreen() {
                     metricsByLevel[currentLevel] =
                         (metricsByLevel[currentLevel] ?: LevelMetrics()).copy(death = it)
                 },
-                onTargetChange = { goal = it }
+                onPreviousLevel = { if (currentLevel > 4) currentLevel-- },
+                onNextLevel = { if (currentLevel < 21) currentLevel++ }
             )
 
             // 4. Action Buttons (RESET RUN, SAVE RUN)

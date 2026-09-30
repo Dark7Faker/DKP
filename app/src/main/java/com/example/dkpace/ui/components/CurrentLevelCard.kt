@@ -30,7 +30,8 @@ fun CurrentLevelCard(
     modifier: Modifier = Modifier,
     currentLevel: Int = 4,
     onPreviousLevel: () -> Unit = {},
-    onNextLevel: () -> Unit = {}
+    onNextLevel: () -> Unit = {},
+    compact: Boolean = false
 ) {
     val levelText = String.format("L = %02d", currentLevel)
 
@@ -49,7 +50,10 @@ fun CurrentLevelCard(
                 color = ArcadeColors.CyanBorder,
                 shape = RoundedCornerShape(16.dp)
             )
-            .padding(horizontal = 12.dp, vertical = 12.dp)
+            .padding(
+                horizontal = if (compact) 4.dp else 12.dp,
+                vertical = if (compact) 6.dp else 12.dp
+            )
             .pointerInput(currentLevel) {
                 detectHorizontalDragGestures(
                     onDragStart = {
@@ -95,15 +99,15 @@ fun CurrentLevelCard(
             Text(
                 text = "CURRENT LEVEL",
                 color = ArcadeColors.TextMuted,
-                fontSize = 10.sp,
+                fontSize = if (compact) 7.sp else 10.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.sp
             )
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(if (compact) 1.dp else 2.dp))
             Text(
                 text = levelText,
                 color = ArcadeColors.CyanPrimary,
-                fontSize = 32.sp,
+                fontSize = if (compact) 18.sp else 32.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 1.sp
             )

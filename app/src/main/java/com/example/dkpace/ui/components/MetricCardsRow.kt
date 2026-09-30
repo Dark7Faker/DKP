@@ -60,11 +60,12 @@ fun MetricCardsRow(
     score: String,
     bonus: String,
     death: String,
-    target: String,
+    currentLevel: Int,
     onScoreChange: (String) -> Unit,
     onBonusChange: (String) -> Unit,
     onDeathChange: (String) -> Unit,
-    onTargetChange: (String) -> Unit
+    onPreviousLevel: () -> Unit,
+    onNextLevel: () -> Unit
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -128,26 +129,41 @@ fun MetricCardsRow(
             }
         )
 
-        // 4. TARGET SCORE Card
-        SingleMetricCard(
-            modifier = Modifier.weight(1f),
-            label = "GOAL",
-            value = target,
-            maxDigits = 7,
-            shortcut = MetricShortcut.NONE,
-            onValueChange = onTargetChange,
-            accentColor = ArcadeColors.GoldAccent,
-            borderColor = ArcadeColors.GoldAccent,
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Flag,
-                    contentDescription = null,
-                    tint = ArcadeColors.GoldAccent,
-                    modifier = Modifier.size(15.dp)
-                )
-            }
+        CurrentLevelCard(
+            modifier = Modifier.weight(1f).height(80.dp),
+            currentLevel = currentLevel,
+            onPreviousLevel = onPreviousLevel,
+            onNextLevel = onNextLevel,
+            compact = true
         )
     }
+}
+
+@Composable
+fun GoalMetricCard(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SingleMetricCard(
+        modifier = modifier.fillMaxWidth().height(80.dp),
+        label = "GOAL",
+        value = value,
+        maxDigits = 7,
+        shortcut = MetricShortcut.NONE,
+        onValueChange = onValueChange,
+        accentColor = ArcadeColors.GoldAccent,
+        borderColor = ArcadeColors.GoldAccent,
+        compact = true,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Flag,
+                contentDescription = null,
+                tint = ArcadeColors.GoldAccent,
+                modifier = Modifier.size(15.dp)
+            )
+        }
+    )
 }
 
 @Composable
@@ -160,6 +176,7 @@ private fun SingleMetricCard(
     onValueChange: (String) -> Unit,
     accentColor: Color,
     borderColor: Color,
+    compact: Boolean = false,
     icon: @Composable () -> Unit
 ) {
     var wasFocused by remember { mutableStateOf(false) }
@@ -175,7 +192,7 @@ private fun SingleMetricCard(
                 color = borderColor,
                 shape = RoundedCornerShape(12.dp)
             )
-            .padding(horizontal = 6.dp, vertical = 10.dp)
+            .padding(horizontal = 6.dp, vertical = if (compact) 6.dp else 10.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -197,7 +214,7 @@ private fun SingleMetricCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(if (compact) 4.dp else 8.dp))
 
             // Value Box
             Box(
@@ -212,7 +229,7 @@ private fun SingleMetricCard(
                         color = borderColor.copy(alpha = 0.6f),
                         shape = RoundedCornerShape(8.dp)
                     )
-                    .padding(vertical = 6.dp, horizontal = 2.dp),
+                    .padding(vertical = if (compact) 4.dp else 6.dp, horizontal = 2.dp),
                 contentAlignment = Alignment.Center
             ) {
                 BasicTextField(
