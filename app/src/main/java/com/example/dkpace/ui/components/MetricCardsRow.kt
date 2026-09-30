@@ -63,7 +63,8 @@ fun MetricCardsRow(
     currentLevel: Int,
     onScoreChange: (String) -> Unit,
     onBonusChange: (String) -> Unit,
-    onDeathChange: (String) -> Unit
+    onDeathChange: (String) -> Unit,
+    onInputFocusChanged: (Boolean) -> Unit
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -77,6 +78,7 @@ fun MetricCardsRow(
             maxDigits = 7,
             shortcut = MetricShortcut.SCORE,
             onValueChange = onScoreChange,
+            onFocusChanged = onInputFocusChanged,
             accentColor = Color(0xFFB000FF),
             borderColor = Color(0xFFB000FF),
             icon = {
@@ -97,6 +99,7 @@ fun MetricCardsRow(
             maxDigits = 5,
             shortcut = MetricShortcut.BONUS_OR_DEATH,
             onValueChange = onBonusChange,
+            onFocusChanged = onInputFocusChanged,
             accentColor = Color(0xFFC0C0C0),
             borderColor = Color(0xFFC0C0C0),
             icon = {
@@ -117,6 +120,7 @@ fun MetricCardsRow(
             maxDigits = 5,
             shortcut = MetricShortcut.BONUS_OR_DEATH,
             onValueChange = onDeathChange,
+            onFocusChanged = onInputFocusChanged,
             accentColor = ArcadeColors.PinkAccent,
             borderColor = ArcadeColors.PinkAccent,
             icon = {
@@ -139,6 +143,7 @@ fun MetricCardsRow(
 fun GoalMetricCard(
     value: String,
     onValueChange: (String) -> Unit,
+    onInputFocusChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     SingleMetricCard(
@@ -148,6 +153,7 @@ fun GoalMetricCard(
         maxDigits = 7,
         shortcut = MetricShortcut.NONE,
         onValueChange = onValueChange,
+        onFocusChanged = onInputFocusChanged,
         accentColor = ArcadeColors.GoldAccent,
         borderColor = ArcadeColors.GoldAccent,
         compact = true,
@@ -170,6 +176,7 @@ private fun SingleMetricCard(
     maxDigits: Int,
     shortcut: MetricShortcut,
     onValueChange: (String) -> Unit,
+    onFocusChanged: (Boolean) -> Unit,
     accentColor: Color,
     borderColor: Color,
     compact: Boolean = false,
@@ -255,6 +262,7 @@ private fun SingleMetricCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
+                            onFocusChanged(focusState.isFocused)
                             if (focusState.isFocused && !wasFocused) {
                                 wasFocused = true
                                 onValueChange("")

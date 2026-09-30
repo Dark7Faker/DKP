@@ -69,6 +69,7 @@ fun ArcadeTrackerScreen() {
     }
     var currentLevel by remember { mutableIntStateOf(4) }
     var batterySaverEnabled by remember { mutableStateOf(false) }
+    var inputFieldFocused by remember { mutableStateOf(false) }
     SideEffect {
         window?.let { currentWindow ->
             val keepScreenOnFlag = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
@@ -215,16 +216,22 @@ fun ArcadeTrackerScreen() {
                     detectTapGestures(
                         onTap = { tap ->
                             val edgeWidth = 48.dp.toPx()
-                            when {
-                                tap.x <= edgeWidth && currentLevel > 4 -> {
-                                    focusManager.clearFocus()
-                                    currentLevel--
+                            val tappedLevelEdge = tap.x <= edgeWidth || tap.x >= size.width - edgeWidth
+                            if (inputFieldFocused) {
+                                // End editing and format the value, but require a new tap to change level.
+                                focusManager.clearFocus()
+                            } else {
+                                when {
+                                    tap.x <= edgeWidth && currentLevel > 4 -> {
+                                        focusManager.clearFocus()
+                                        currentLevel--
+                                    }
+                                    tap.x >= size.width - edgeWidth && currentLevel < 21 -> {
+                                        focusManager.clearFocus()
+                                        currentLevel++
+                                    }
+                                    !tappedLevelEdge -> focusManager.clearFocus()
                                 }
-                                tap.x >= size.width - edgeWidth && currentLevel < 21 -> {
-                                    focusManager.clearFocus()
-                                    currentLevel++
-                                }
-                                else -> focusManager.clearFocus()
                             }
                         }
                     )
@@ -240,7 +247,11 @@ fun ArcadeTrackerScreen() {
             })
 
             // 2. Goal takes the former full-width Current Level position
-            GoalMetricCard(value = goal, onValueChange = { goal = it })
+            GoalMetricCard(
+                value = goal,
+                onValueChange = { goal = it },
+                onInputFocusChanged = { inputFieldFocused = it }
+            )
 
             // 3. Row of 4 Metric Cards
             MetricCardsRow(
@@ -259,7 +270,8 @@ fun ArcadeTrackerScreen() {
                 onDeathChange = {
                     metricsByLevel[currentLevel] =
                         (metricsByLevel[currentLevel] ?: LevelMetrics()).copy(death = it)
-                }
+                },
+                onInputFocusChanged = { inputFieldFocused = it }
             )
 
             // 4. Action Buttons (RESET RUN, SAVE RUN)
