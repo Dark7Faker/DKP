@@ -71,7 +71,7 @@ fun MetricCardsRow(
     ) {
         // 1. SCORE Card
         SingleMetricCard(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).height(80.dp),
             label = "SCORE",
             value = score,
             maxDigits = 7,
@@ -91,7 +91,7 @@ fun MetricCardsRow(
 
         // 2. BONUS Card
         SingleMetricCard(
-            modifier = Modifier.weight(0.75f),
+            modifier = Modifier.weight(0.75f).height(80.dp),
             label = "BONUS",
             value = bonus,
             maxDigits = 5,
@@ -111,7 +111,7 @@ fun MetricCardsRow(
 
         // 3. DEATH BONUS Card
         SingleMetricCard(
-            modifier = Modifier.weight(0.75f),
+            modifier = Modifier.weight(0.75f).height(80.dp),
             label = "DEATH",
             value = death,
             maxDigits = 5,
@@ -225,7 +225,7 @@ private fun SingleMetricCard(
                         color = borderColor.copy(alpha = 0.6f),
                         shape = RoundedCornerShape(8.dp)
                     )
-                    .padding(vertical = if (compact) 4.dp else 6.dp, horizontal = 2.dp),
+                    .padding(vertical = 4.dp, horizontal = 2.dp),
                 contentAlignment = Alignment.Center
             ) {
                 BasicTextField(
