@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.WindowManager
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,7 +27,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -111,8 +110,6 @@ fun ArcadeTrackerScreen() {
     }
     val metricsByLevel = remember { mutableStateMapOf<Int, LevelMetrics>() }
 
-    var totalDragX by remember { mutableFloatStateOf(0f) }
-    var hasSwiped by remember { mutableStateOf(false) }
 
     val currentMetrics = metricsByLevel[currentLevel] ?: LevelMetrics()
     val startingMetrics = metricsByLevel[4] ?: LevelMetrics()
@@ -214,41 +211,20 @@ fun ArcadeTrackerScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { focusManager.clearFocus() }
                 .pointerInput(currentLevel) {
-                    detectHorizontalDragGestures(
-                        onDragStart = {
-                            totalDragX = 0f
-                            hasSwiped = false
-                        },
-                        onDragEnd = {
-                            totalDragX = 0f
-                            hasSwiped = false
-                        },
-                        onDragCancel = {
-                            totalDragX = 0f
-                            hasSwiped = false
-                        },
-                        onHorizontalDrag = { _, dragAmount ->
-                            totalDragX += dragAmount
-                            val swipeThreshold = 35.dp.toPx()
-                            if (!hasSwiped) {
-                                if (totalDragX > swipeThreshold) {
-                                    // Swipe right (finger left to right) -> decrease level
-                                    if (currentLevel > 4) {
-                                        currentLevel--
-                                    }
-                                    hasSwiped = true
-                                } else if (totalDragX < -swipeThreshold) {
-                                    // Swipe left (finger right to left) -> increase level
-                                    if (currentLevel < 21) {
-                                        currentLevel++
-                                    }
-                                    hasSwiped = true
+                    detectTapGestures(
+                        onTap = { tap ->
+                            val edgeWidth = 48.dp.toPx()
+                            when {
+                                tap.x <= edgeWidth && currentLevel > 4 -> {
+                                    focusManager.clearFocus()
+                                    currentLevel--
                                 }
+                                tap.x >= size.width - edgeWidth && currentLevel < 21 -> {
+                                    focusManager.clearFocus()
+                                    currentLevel++
+                                }
+                                else -> focusManager.clearFocus()
                             }
                         }
                     )
@@ -283,9 +259,7 @@ fun ArcadeTrackerScreen() {
                 onDeathChange = {
                     metricsByLevel[currentLevel] =
                         (metricsByLevel[currentLevel] ?: LevelMetrics()).copy(death = it)
-                },
-                onPreviousLevel = { if (currentLevel > 4) currentLevel-- },
-                onNextLevel = { if (currentLevel < 21) currentLevel++ }
+                }
             )
 
             // 4. Action Buttons (RESET RUN, SAVE RUN)

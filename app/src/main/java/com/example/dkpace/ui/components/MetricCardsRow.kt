@@ -63,9 +63,7 @@ fun MetricCardsRow(
     currentLevel: Int,
     onScoreChange: (String) -> Unit,
     onBonusChange: (String) -> Unit,
-    onDeathChange: (String) -> Unit,
-    onPreviousLevel: () -> Unit,
-    onNextLevel: () -> Unit
+    onDeathChange: (String) -> Unit
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -132,8 +130,6 @@ fun MetricCardsRow(
         CurrentLevelCard(
             modifier = Modifier.weight(1f).height(80.dp),
             currentLevel = currentLevel,
-            onPreviousLevel = onPreviousLevel,
-            onNextLevel = onNextLevel,
             compact = true
         )
     }
