@@ -77,13 +77,13 @@ fun MetricCardsRow(
             maxDigits = 7,
             shortcut = MetricShortcut.SCORE,
             onValueChange = onScoreChange,
-            accentColor = ArcadeColors.CyanPrimary,
+            accentColor = Color(0xFFB000FF),
             borderColor = Color(0xFFB000FF),
             icon = {
                 Icon(
                     imageVector = Icons.Default.Star,
                     contentDescription = null,
-                    tint = ArcadeColors.CyanPrimary,
+                    tint = Color(0xFFB000FF),
                     modifier = Modifier.size(15.dp)
                 )
             }
@@ -97,13 +97,13 @@ fun MetricCardsRow(
             maxDigits = 5,
             shortcut = MetricShortcut.BONUS_OR_DEATH,
             onValueChange = onBonusChange,
-            accentColor = ArcadeColors.CyanPrimary,
-            borderColor = ArcadeColors.CyanBorder,
+            accentColor = Color(0xFFC0C0C0),
+            borderColor = Color(0xFFC0C0C0),
             icon = {
                 Icon(
                     imageVector = Icons.Default.AccessTime,
                     contentDescription = null,
-                    tint = ArcadeColors.CyanPrimary,
+                    tint = Color(0xFFC0C0C0),
                     modifier = Modifier.size(15.dp)
                 )
             }
