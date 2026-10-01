@@ -51,6 +51,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
 import com.example.dkpace.R
 import com.example.dkpace.ui.theme.ArcadeColors
 import java.util.Locale
@@ -153,7 +154,8 @@ fun SaveRunMenu(
                         icon = Icons.Default.PlayArrow,
                         tint = ArcadeColors.GoldAccent,
                         borderColor = ArcadeColors.GoldAccent,
-                        valueColor = ArcadeColors.GoldAccent
+                        valueColor = ArcadeColors.GoldAccent,
+                        valueFontSize = 13.sp
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.weight(1.1f).height(80.dp),
@@ -162,7 +164,8 @@ fun SaveRunMenu(
                         icon = Icons.Default.EmojiEvents,
                         tint = Color.White,
                         borderColor = Color.White,
-                        valueColor = Color.White
+                        valueColor = Color.White,
+                        valueFontSize = 13.sp
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.weight(1f).height(80.dp),
@@ -171,7 +174,8 @@ fun SaveRunMenu(
                         icon = Icons.Default.Balance,
                         tint = averageColor,
                         borderColor = averageColor,
-                        valueColor = averageColor
+                        valueColor = averageColor,
+                        valueFontSize = 13.sp
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.width(trackerLevelBlockWidth).height(80.dp),
@@ -462,7 +466,8 @@ private fun SaveRunSummaryItem(
     borderColor: Color = ArcadeColors.BorderSubtle,
     labelColor: Color = tint,
     emphasizeValue: Boolean = false,
-    valueColor: Color? = null
+    valueColor: Color? = null,
+    valueFontSize: TextUnit? = null
 ) {
     Column(
         modifier = modifier
@@ -489,7 +494,7 @@ private fun SaveRunSummaryItem(
         Text(
             text = value,
             color = valueColor ?: if (emphasizeValue) tint else ArcadeColors.TextWhite,
-            fontSize = if (emphasizeValue) 18.sp else 11.sp,
+            fontSize = valueFontSize ?: if (emphasizeValue) 18.sp else 11.sp,
             fontWeight = if (emphasizeValue) FontWeight.ExtraBold else FontWeight.Bold,
             letterSpacing = if (emphasizeValue) 1.sp else 0.sp,
             maxLines = 1,
