@@ -289,19 +289,34 @@ fun PaceChartCard(
                                     moveTo(pointPositions.first().x, pointPositions.first().y)
                                     pointPositions.drop(1).forEach { lineTo(it.x, it.y) }
                                 }
-                                drawPath(path, Color(0xFF00B0FF), style = Stroke(width = 3.dp.toPx()))
+                                drawPath(
+                                    path,
+                                    Color(0xFF00B0FF),
+                                    style = Stroke(width = 3.dp.toPx())
+                                )
+                                drawPath(
+                                    path,
+                                    Color(0xFFB8F3FF).copy(alpha = 0.85f),
+                                    style = Stroke(width = 1.dp.toPx())
+                                )
                             }
 
                             pointPositions.forEachIndexed { index, point ->
+                                val isSelected = points[index].level == selectedLevel
                                 val pointColor = Color(0xFF00B0FF)
-                                if (points[index].level == selectedLevel) {
+                                drawCircle(
+                                    color = pointColor.copy(alpha = 0.22f),
+                                    radius = 7.dp.toPx(),
+                                    center = point
+                                )
+                                if (isSelected) {
                                     drawCircle(
-                                        color = pointColor.copy(alpha = 0.16f),
+                                        color = pointColor.copy(alpha = 0.2f),
                                         radius = 16.dp.toPx(),
                                         center = point
                                     )
                                     drawCircle(
-                                        color = pointColor.copy(alpha = 0.3f),
+                                        color = pointColor.copy(alpha = 0.38f),
                                         radius = 11.dp.toPx(),
                                         center = point
                                     )
