@@ -74,7 +74,7 @@ fun CurrentLevelCard(
                     fontWeight = FontWeight.Bold
                 )
             }
-            Spacer(modifier = Modifier.height(if (compact) 1.dp else 2.dp))
+            Spacer(modifier = Modifier.height(if (compact) 6.dp else 7.dp))
             Text(
                 text = levelText,
                 color = ArcadeColors.CyanPrimary,
