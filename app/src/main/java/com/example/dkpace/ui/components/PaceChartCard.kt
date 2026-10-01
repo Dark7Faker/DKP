@@ -329,21 +329,20 @@ fun PaceChartCard(
                         }
                     }
                     if (points.isNotEmpty()) {
-                        val chartWidthDp = plotWidth
                         val barWidthDp = minOf(
-                            chartWidthDp / xAxisLevels.size * 0.45f,
+                            plotWidth / xAxisLevels.size * 0.45f,
                             26.dp
                         )
                         val horizontalInsetDp = if (xAxisLevels.size > 1) barWidthDp / 2f else 0.dp
-                        val usableWidthDp = chartWidthDp - horizontalInsetDp * 2f
+                        val usableWidthDp = plotWidth - horizontalInsetDp * 2f
                         val spacingDp = if (xAxisLevels.size > 1) {
                             usableWidthDp / (xAxisLevels.size - 1)
                         } else {
-                            chartWidthDp
+                            plotWidth
                         }
                         points.filter { it.death > 0L }.forEach { point ->
                             val slotIndex = point.level - 5
-                            val x = if (xAxisLevels.size == 1) chartWidthDp / 2f
+                            val x = if (xAxisLevels.size == 1) plotWidth / 2f
                             else horizontalInsetDp + spacingDp * slotIndex
                             val normalized = ((point.pace - axisMinimum).toDouble() /
                                 (axisMaximum - axisMinimum)).toFloat()
