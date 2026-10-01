@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -32,6 +33,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dkpace.ui.theme.ArcadeColors
+import com.example.dkpace.R
 import kotlin.math.roundToLong
 import java.util.Locale
 
@@ -150,10 +153,14 @@ fun PaceChartCard(
                     Spacer(modifier = Modifier.width(6.dp))
 
                     // Chart Canvas (Grid Lines + Bars + Line + Dots)
-                    Canvas(
+                    Box(
                         modifier = Modifier
                             .weight(1f)
                             .height(160.dp)
+                    ) {
+                    Canvas(
+                        modifier = Modifier
+                            .fillMaxSize()
                             .pointerInput(points, xAxisLevels, axisMinimum, axisMaximum) {
                                 detectTapGestures { tap ->
                                     if (points.isNotEmpty()) {
@@ -286,10 +293,7 @@ fun PaceChartCard(
                             }
 
                             pointPositions.forEachIndexed { index, point ->
-                                val pointColor = when {
-                                    points[index].death > 0L -> ArcadeColors.RedAccent
-                                    else -> Color(0xFF00B0FF)
-                                }
+                                val pointColor = Color(0xFF00B0FF)
                                 if (points[index].level == selectedLevel) {
                                     drawCircle(
                                         color = pointColor.copy(alpha = 0.16f),
@@ -301,13 +305,46 @@ fun PaceChartCard(
                                         radius = 11.dp.toPx(),
                                         center = point
                                     )
-                                    drawCircle(pointColor, radius = 7.dp.toPx(), center = point)
+                                    drawCircle(pointColor, radius = 6.dp.toPx(), center = point)
                                 } else {
-                                    drawCircle(pointColor, radius = 7.dp.toPx(), center = point)
+                                    drawCircle(pointColor, radius = 6.dp.toPx(), center = point)
                                 }
-                                drawCircle(Color.White, radius = 3.5.dp.toPx(), center = point)
+                                drawCircle(Color.White, radius = 3.dp.toPx(), center = point)
                             }
                         }
+                    }
+                    if (points.isNotEmpty()) {
+                        val chartWidthDp = plotWidth
+                        val barWidthDp = minOf(
+                            chartWidthDp / xAxisLevels.size * 0.45f,
+                            26.dp
+                        )
+                        val horizontalInsetDp = if (xAxisLevels.size > 1) barWidthDp / 2f else 0.dp
+                        val usableWidthDp = chartWidthDp - horizontalInsetDp * 2f
+                        val spacingDp = if (xAxisLevels.size > 1) {
+                            usableWidthDp / (xAxisLevels.size - 1)
+                        } else {
+                            chartWidthDp
+                        }
+                        points.filter { it.death > 0L }.forEach { point ->
+                            val slotIndex = point.level - 5
+                            val x = if (xAxisLevels.size == 1) chartWidthDp / 2f
+                            else horizontalInsetDp + spacingDp * slotIndex
+                            val normalized = ((point.pace - axisMinimum).toDouble() /
+                                (axisMaximum - axisMinimum)).toFloat()
+                            val barTop = (150.dp - 140.dp * normalized.coerceIn(0f, 1f))
+                                .coerceIn(10.dp, 150.dp)
+                            val centerY = barTop + (150.dp - barTop) / 2f
+                            Icon(
+                                painter = painterResource(R.drawable.ic_skull),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .offset(x = x - 8.dp, y = centerY - 8.dp)
+                                    .size(16.dp),
+                                tint = Color.White
+                            )
+                        }
+                    }
                     }
                 }
 
