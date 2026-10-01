@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NoteAdd
 import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material.icons.filled.Balance
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -29,7 +30,6 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dkpace.R
 import com.example.dkpace.ui.theme.ArcadeColors
+import java.util.Locale
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -88,7 +89,7 @@ fun SaveRunMenu(
                 verticalAlignment = Alignment.Top
             ) {
                 Icon(
-                    imageVector = Icons.Default.NoteAdd,
+                    imageVector = Icons.AutoMirrored.Filled.NoteAdd,
                     contentDescription = null,
                     tint = ArcadeColors.CyanPrimary,
                     modifier = Modifier.padding(top = 2.dp).size(20.dp)
@@ -175,7 +176,7 @@ fun SaveRunMenu(
                     SaveRunSummaryItem(
                         modifier = Modifier.width(trackerLevelBlockWidth).height(80.dp),
                         label = "LEVEL",
-                        value = level?.let { String.format("L = %02d", it) } ?: "---",
+                        value = level?.let { String.format(Locale.ROOT, "L = %02d", it) } ?: "---",
                         icon = Icons.Default.Adjust,
                         tint = ArcadeColors.CyanPrimary,
                         borderColor = ArcadeColors.CyanBorder,
