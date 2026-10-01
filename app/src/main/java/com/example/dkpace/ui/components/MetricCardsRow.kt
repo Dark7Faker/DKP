@@ -18,7 +18,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -314,9 +313,8 @@ private fun formatMetric(value: String, shortcut: MetricShortcut): String {
         MetricShortcut.BONUS_OR_DEATH -> if (digits.length in 1..2) "${digits}00" else digits
         MetricShortcut.NONE -> digits
     }
-    return expandedDigits.toLongOrNull()?.roundToHundred()?.let { rounded ->
-        rounded.toString().reversed().chunked(3).joinToString(".").reversed()
-    }.orEmpty()
+    val rounded = expandedDigits.toLongOrNull()?.roundToHundred() ?: return ""
+    return rounded.toString().reversed().chunked(3).joinToString(".").reversed()
 }
 
 private fun Long.roundToHundred(): Long = ((this + 50) / 100) * 100
