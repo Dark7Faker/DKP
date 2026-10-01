@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
@@ -66,8 +65,7 @@ fun MetricCardsRow(
     onScoreChange: (String) -> Unit,
     onBonusChange: (String) -> Unit,
     onDeathChange: (String) -> Unit,
-    onInputFocusChanged: (Boolean) -> Unit,
-    onScoreFocusChanged: (Boolean) -> Unit
+    onInputFocusChanged: (Boolean) -> Unit
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -81,14 +79,10 @@ fun MetricCardsRow(
             maxDigits = 7,
             shortcut = MetricShortcut.SCORE,
             onValueChange = onScoreChange,
-            onFocusChanged = {
-                onInputFocusChanged(it)
-                onScoreFocusChanged(it)
-            },
+            onFocusChanged = onInputFocusChanged,
             accentColor = Color(0xFFB000FF),
             borderColor = Color(0xFFB000FF),
             inputTextColor = Color(0xFFB000FF),
-            focusNextOnDone = true,
             icon = {
                 Icon(
                     imageVector = Icons.Default.Star,
@@ -199,7 +193,6 @@ private fun SingleMetricCard(
     borderColor: Color,
     inputTextColor: Color = ArcadeColors.TextWhite,
     hideBorder: Boolean = false,
-    focusNextOnDone: Boolean = false,
     restorePreviousOnEmpty: Boolean = true,
     compact: Boolean = false,
     supportingText: String? = null,
@@ -281,11 +274,7 @@ private fun SingleMetricCard(
                     keyboardActions = KeyboardActions(
                         onDone = {
                             onValueChange(formatMetric(value, shortcut))
-                            if (focusNextOnDone) {
-                                focusManager.moveFocus(FocusDirection.Next)
-                            } else {
-                                focusManager.clearFocus()
-                            }
+                            focusManager.clearFocus()
                         }
                     ),
                     modifier = Modifier

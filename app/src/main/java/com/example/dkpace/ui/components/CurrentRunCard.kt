@@ -186,13 +186,21 @@ private fun CenteredMetricRow(
     valueColor: Color
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        icon()
-        Spacer(modifier = Modifier.width(10.dp))
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            modifier = Modifier.width(24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            icon()
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(
                 text = label,
                 color = ArcadeColors.TextSecondary,
@@ -209,8 +217,12 @@ private fun CenteredMetricRow(
                 fontWeight = FontWeight.Black
             )
         }
-        Spacer(modifier = Modifier.width(10.dp))
-        icon()
+        Box(
+            modifier = Modifier.width(24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            icon()
+        }
     }
 }
 
