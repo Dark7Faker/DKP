@@ -87,30 +87,34 @@ fun CurrentRunCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Row 1: PACE | POINTS THIS LEVEL
-            GridRow(
-                leftIcon = {
+            CenteredMetricRow(
+                icon = {
                     Icon(
                         imageVector = Icons.Default.EmojiEvents,
                         contentDescription = null,
                         tint = ArcadeColors.CyanPrimary,
-                        modifier = Modifier.padding(top = 30.dp).size(24.dp)
+                        modifier = Modifier.size(24.dp)
                     )
                 },
-                leftLabel = "PACE",
-                leftValue = pace,
-                leftValueColor = ArcadeColors.TextWhite,
-                rightIcon = {
+                label = "PACE",
+                value = pace,
+                valueColor = ArcadeColors.TextWhite
+            )
+
+            GridDivider()
+
+            CenteredMetricRow(
+                icon = {
                     Icon(
                         imageVector = Icons.Default.Bookmark,
                         contentDescription = null,
                         tint = ArcadeColors.CyanPrimary,
-                        modifier = Modifier.padding(top = 30.dp).size(24.dp)
+                        modifier = Modifier.size(24.dp)
                     )
                 },
-                rightLabel = "POINTS THIS LEVEL",
-                rightValue = pointsInThisLevel,
-                rightValueColor = ArcadeColors.TextWhite
+                label = "POINTS THIS LEVEL",
+                value = pointsInThisLevel,
+                valueColor = ArcadeColors.TextWhite
             )
 
             GridDivider()
@@ -171,6 +175,42 @@ fun CurrentRunCard(
                 rightValueColor = ArcadeColors.GoldAccent
             )
         }
+    }
+}
+
+@Composable
+private fun CenteredMetricRow(
+    icon: @Composable () -> Unit,
+    label: String,
+    value: String,
+    valueColor: Color
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        icon()
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = label,
+                color = ArcadeColors.TextSecondary,
+                fontSize = 9.5.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.5.sp,
+                maxLines = 1
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = value,
+                color = valueColor,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Black
+            )
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        icon()
     }
 }
 
