@@ -50,7 +50,8 @@ private const val PACE_AXIS_BASE_STEP = 50_000L
 data class PacePoint(
     val level: Int,
     val pace: Long,
-    val death: Long = 0L
+    val death: Long = 0L,
+    val hasDeathEntry: Boolean = death > 0L
 )
 
 @Composable
@@ -90,21 +91,26 @@ fun PaceChartCard(
             .padding(16.dp)
     ) {
         Column {
-            Row(verticalAlignment = Alignment.Top) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ShowChart,
-                    contentDescription = null,
-                    tint = ArcadeColors.CyanPrimary,
-                    modifier = Modifier.padding(top = 2.dp).size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "PACE OVER TIME",
-                    color = ArcadeColors.CyanPrimary,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.5.sp
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.Top) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ShowChart,
+                        contentDescription = null,
+                        tint = ArcadeColors.CyanPrimary,
+                        modifier = Modifier.padding(top = 2.dp).size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "PACE OVER TIME",
+                        color = ArcadeColors.CyanPrimary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.5.sp
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -340,7 +346,7 @@ fun PaceChartCard(
                         } else {
                             plotWidth
                         }
-                        points.filter { it.death > 0L }.forEach { point ->
+                        points.filter { it.hasDeathEntry }.forEach { point ->
                             val slotIndex = point.level - 5
                             val x = if (xAxisLevels.size == 1) plotWidth / 2f
                             else horizontalInsetDp + spacingDp * slotIndex
@@ -388,6 +394,7 @@ fun PaceChartCard(
                     }
                 }
             }
+
         }
     }
 }

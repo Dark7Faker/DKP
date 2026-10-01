@@ -87,36 +87,30 @@ fun CurrentRunCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Centered Item 1: PACE (Icon -> Label -> Value stacked vertically)
-            CenteredMetricItem(
-                icon = {
+            // Row 1: PACE | POINTS THIS LEVEL
+            GridRow(
+                leftIcon = {
                     Icon(
                         imageVector = Icons.Default.EmojiEvents,
                         contentDescription = null,
                         tint = ArcadeColors.CyanPrimary,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.padding(top = 30.dp).size(24.dp)
                     )
                 },
-                label = "PACE",
-                value = pace,
-                valueColor = ArcadeColors.TextWhite
-            )
-
-            GridDivider()
-
-            // Centered Item 2: POINTS THIS LEVEL (Icon -> Label -> Value stacked vertically)
-            CenteredMetricItem(
-                icon = {
+                leftLabel = "PACE",
+                leftValue = pace,
+                leftValueColor = ArcadeColors.TextWhite,
+                rightIcon = {
                     Icon(
                         imageVector = Icons.Default.Bookmark,
                         contentDescription = null,
                         tint = ArcadeColors.CyanPrimary,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.padding(top = 30.dp).size(24.dp)
                     )
                 },
-                label = "POINTS THIS LEVEL",
-                value = pointsInThisLevel,
-                valueColor = ArcadeColors.TextWhite
+                rightLabel = "POINTS THIS LEVEL",
+                rightValue = pointsInThisLevel,
+                rightValueColor = ArcadeColors.TextWhite
             )
 
             GridDivider()
@@ -177,36 +171,6 @@ fun CurrentRunCard(
                 rightValueColor = ArcadeColors.GoldAccent
             )
         }
-    }
-}
-
-@Composable
-private fun CenteredMetricItem(
-    icon: @Composable () -> Unit,
-    label: String,
-    value: String,
-    valueColor: Color
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        icon()
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = label,
-            color = ArcadeColors.TextSecondary,
-            fontSize = 9.5.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 0.5.sp
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = value,
-            color = valueColor,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Black
-        )
     }
 }
 

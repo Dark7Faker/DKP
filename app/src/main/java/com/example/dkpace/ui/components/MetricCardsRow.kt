@@ -133,6 +133,7 @@ fun MetricCardsRow(
             accentColor = ArcadeColors.PinkAccent,
             borderColor = ArcadeColors.PinkAccent,
             inputTextColor = ArcadeColors.PinkAccent,
+            restorePreviousOnEmpty = false,
             icon = {
                 Icon(
                     painter = painterResource(R.drawable.ic_skull),
@@ -154,6 +155,7 @@ fun MetricCardsRow(
 @Composable
 fun GoalMetricCard(
     value: String,
+    deathpoints: Long,
     onValueChange: (String) -> Unit,
     onInputFocusChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -171,6 +173,8 @@ fun GoalMetricCard(
         inputTextColor = ArcadeColors.GoldAccent,
         compact = true,
         restorePreviousOnEmpty = false,
+        supportingText = "Deathpoints: ${formatMetricLong(deathpoints)}",
+        supportingTextColor = ArcadeColors.RedAccent,
         icon = {
             Icon(
                 imageVector = Icons.Default.Flag,
@@ -198,6 +202,8 @@ private fun SingleMetricCard(
     focusNextOnDone: Boolean = false,
     restorePreviousOnEmpty: Boolean = true,
     compact: Boolean = false,
+    supportingText: String? = null,
+    supportingTextColor: Color = ArcadeColors.TextMuted,
     icon: @Composable () -> Unit
 ) {
     var wasFocused by remember { mutableStateOf(false) }
@@ -306,6 +312,18 @@ private fun SingleMetricCard(
                     }
                 )
             }
+
+            if (supportingText != null) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = supportingText,
+                    color = supportingTextColor,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
+                )
+            }
         }
     }
 }
@@ -322,3 +340,6 @@ private fun formatMetric(value: String, shortcut: MetricShortcut): String {
 }
 
 private fun Long.roundToHundred(): Long = ((this + 50) / 100) * 100
+
+private fun formatMetricLong(value: Long): String =
+    value.toString().reversed().chunked(3).joinToString(".").reversed()
