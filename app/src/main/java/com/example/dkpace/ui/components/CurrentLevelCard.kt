@@ -29,7 +29,8 @@ import com.example.dkpace.ui.theme.ArcadeColors
 fun CurrentLevelCard(
     modifier: Modifier = Modifier,
     currentLevel: Int = 4,
-    compact: Boolean = false
+    compact: Boolean = false,
+    hideBorder: Boolean = false
 ) {
     val levelText = String.format("L = %02d", currentLevel)
 
@@ -42,7 +43,7 @@ fun CurrentLevelCard(
             )
             .border(
                 width = 1.5.dp,
-                color = ArcadeColors.CyanBorder,
+                color = if (hideBorder) androidx.compose.ui.graphics.Color.Transparent else ArcadeColors.CyanBorder,
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(

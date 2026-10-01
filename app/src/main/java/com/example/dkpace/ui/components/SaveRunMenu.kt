@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -87,7 +88,7 @@ fun SaveRunMenu(
                 verticalAlignment = Alignment.Top
             ) {
                 Icon(
-                    imageVector = Icons.Default.Save,
+                    imageVector = Icons.Default.NoteAdd,
                     contentDescription = null,
                     tint = ArcadeColors.CyanPrimary,
                     modifier = Modifier.padding(top = 2.dp).size(20.dp)
@@ -150,7 +151,8 @@ fun SaveRunMenu(
                         value = startScore,
                         icon = Icons.Default.PlayArrow,
                         tint = ArcadeColors.GoldAccent,
-                        borderColor = ArcadeColors.GoldAccent
+                        borderColor = ArcadeColors.GoldAccent,
+                        valueColor = ArcadeColors.GoldAccent
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.weight(1.1f).height(80.dp),
@@ -158,7 +160,8 @@ fun SaveRunMenu(
                         value = pace,
                         icon = Icons.Default.EmojiEvents,
                         tint = Color.White,
-                        borderColor = Color.White
+                        borderColor = Color.White,
+                        valueColor = Color.White
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.weight(1f).height(80.dp),
@@ -166,7 +169,8 @@ fun SaveRunMenu(
                         value = average,
                         icon = Icons.Default.Balance,
                         tint = averageColor,
-                        borderColor = averageColor
+                        borderColor = averageColor,
+                        valueColor = averageColor
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.width(trackerLevelBlockWidth).height(80.dp),
@@ -263,11 +267,11 @@ private fun SaveRunNameInput(
                 },
                 singleLine = true,
                 textStyle = androidx.compose.ui.text.TextStyle(
-                    color = ArcadeColors.TextWhite,
+                    color = ArcadeColors.CyanPrimary,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 ),
-                cursorBrush = SolidColor(ArcadeColors.TextWhite),
+                cursorBrush = SolidColor(ArcadeColors.CyanPrimary),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                 modifier = Modifier.fillMaxWidth()
@@ -334,11 +338,11 @@ private fun SaveRunScoreInput(
                 },
                 singleLine = true,
                 textStyle = androidx.compose.ui.text.TextStyle(
-                    color = ArcadeColors.TextWhite,
+                    color = Color(0xFFB000FF),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 ),
-                cursorBrush = SolidColor(ArcadeColors.TextWhite),
+                cursorBrush = SolidColor(Color(0xFFB000FF)),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
@@ -449,7 +453,8 @@ private fun SaveRunSummaryItem(
     tint: Color,
     borderColor: Color = ArcadeColors.BorderSubtle,
     labelColor: Color = tint,
-    emphasizeValue: Boolean = false
+    emphasizeValue: Boolean = false,
+    valueColor: Color? = null
 ) {
     Column(
         modifier = modifier
@@ -475,7 +480,7 @@ private fun SaveRunSummaryItem(
         Spacer(Modifier.height(6.dp))
         Text(
             text = value,
-            color = if (emphasizeValue) tint else ArcadeColors.TextWhite,
+            color = valueColor ?: if (emphasizeValue) tint else ArcadeColors.TextWhite,
             fontSize = if (emphasizeValue) 18.sp else 11.sp,
             fontWeight = if (emphasizeValue) FontWeight.ExtraBold else FontWeight.Bold,
             letterSpacing = if (emphasizeValue) 1.sp else 0.sp,

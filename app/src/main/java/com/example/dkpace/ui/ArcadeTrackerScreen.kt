@@ -33,6 +33,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
@@ -71,6 +72,7 @@ fun ArcadeTrackerScreen() {
     var currentLevel by remember { mutableIntStateOf(4) }
     var batterySaverEnabled by remember { mutableStateOf(false) }
     var inputFieldFocused by remember { mutableStateOf(false) }
+    var scoreInputFocused by remember { mutableStateOf(false) }
     var saveRunMenuVisible by remember { mutableStateOf(false) }
     SideEffect {
         window?.let { currentWindow ->
@@ -261,8 +263,12 @@ fun ArcadeTrackerScreen() {
                             val edgeWidth = 48.dp.toPx()
                             val tappedLevelEdge = tap.x <= edgeWidth || tap.x >= size.width - edgeWidth
                             if (inputFieldFocused) {
-                                // End editing and format the value, but require a new tap to change level.
-                                focusManager.clearFocus()
+                                if (scoreInputFocused) {
+                                    focusManager.moveFocus(FocusDirection.Next)
+                                } else {
+                                    // End editing and format the value, but require a new tap to change level.
+                                    focusManager.clearFocus()
+                                }
                             } else {
                                 when {
                                     tap.x <= edgeWidth && currentLevel > 4 -> {
@@ -314,7 +320,8 @@ fun ArcadeTrackerScreen() {
                     metricsByLevel[currentLevel] =
                         (metricsByLevel[currentLevel] ?: LevelMetrics()).copy(death = it)
                 },
-                onInputFocusChanged = { inputFieldFocused = it }
+                onInputFocusChanged = { inputFieldFocused = it },
+                onScoreFocusChanged = { scoreInputFocused = it }
             )
 
             // 4. Action Buttons (RESET RUN, SAVE RUN)

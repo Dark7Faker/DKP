@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
@@ -64,7 +65,8 @@ fun MetricCardsRow(
     onScoreChange: (String) -> Unit,
     onBonusChange: (String) -> Unit,
     onDeathChange: (String) -> Unit,
-    onInputFocusChanged: (Boolean) -> Unit
+    onInputFocusChanged: (Boolean) -> Unit,
+    onScoreFocusChanged: (Boolean) -> Unit
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -78,9 +80,14 @@ fun MetricCardsRow(
             maxDigits = 7,
             shortcut = MetricShortcut.SCORE,
             onValueChange = onScoreChange,
-            onFocusChanged = onInputFocusChanged,
+            onFocusChanged = {
+                onInputFocusChanged(it)
+                onScoreFocusChanged(it)
+            },
             accentColor = Color(0xFFB000FF),
             borderColor = Color(0xFFB000FF),
+            inputTextColor = Color(0xFFB000FF),
+            focusNextOnDone = true,
             icon = {
                 Icon(
                     imageVector = Icons.Default.Star,
@@ -102,6 +109,7 @@ fun MetricCardsRow(
             onFocusChanged = onInputFocusChanged,
             accentColor = Color(0xFFC0C0C0),
             borderColor = Color(0xFFC0C0C0),
+            inputTextColor = Color(0xFFC0C0C0),
             icon = {
                 Icon(
                     imageVector = Icons.Default.AccessTime,
@@ -123,6 +131,7 @@ fun MetricCardsRow(
             onFocusChanged = onInputFocusChanged,
             accentColor = ArcadeColors.PinkAccent,
             borderColor = ArcadeColors.PinkAccent,
+            inputTextColor = ArcadeColors.PinkAccent,
             icon = {
                 SkullIcon(
                     modifier = Modifier.size(15.dp),
@@ -134,7 +143,7 @@ fun MetricCardsRow(
         CurrentLevelCard(
             modifier = Modifier.weight(1f).height(80.dp),
             currentLevel = currentLevel,
-            compact = true
+            compact = true,
         )
     }
 }
@@ -156,7 +165,9 @@ fun GoalMetricCard(
         onFocusChanged = onInputFocusChanged,
         accentColor = ArcadeColors.GoldAccent,
         borderColor = ArcadeColors.GoldAccent,
+        inputTextColor = ArcadeColors.GoldAccent,
         compact = true,
+        restorePreviousOnEmpty = false,
         icon = {
             Icon(
                 imageVector = Icons.Default.Flag,
@@ -179,10 +190,15 @@ private fun SingleMetricCard(
     onFocusChanged: (Boolean) -> Unit,
     accentColor: Color,
     borderColor: Color,
+    inputTextColor: Color = ArcadeColors.TextWhite,
+    hideBorder: Boolean = false,
+    focusNextOnDone: Boolean = false,
+    restorePreviousOnEmpty: Boolean = true,
     compact: Boolean = false,
     icon: @Composable () -> Unit
 ) {
     var wasFocused by remember { mutableStateOf(false) }
+    var previousValue by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     Box(
         modifier = modifier
@@ -192,7 +208,7 @@ private fun SingleMetricCard(
             )
             .border(
                 width = 1.dp,
-                color = borderColor,
+                color = if (hideBorder) Color.Transparent else borderColor,
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(horizontal = 6.dp, vertical = if (compact) 6.dp else 10.dp)
@@ -243,12 +259,12 @@ private fun SingleMetricCard(
                     },
                     singleLine = true,
                     textStyle = androidx.compose.ui.text.TextStyle(
-                        color = ArcadeColors.TextWhite,
+                        color = inputTextColor,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Black,
                         textAlign = TextAlign.Center
                     ),
-                    cursorBrush = SolidColor(ArcadeColors.TextWhite),
+                    cursorBrush = SolidColor(inputTextColor),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
@@ -256,7 +272,11 @@ private fun SingleMetricCard(
                     keyboardActions = KeyboardActions(
                         onDone = {
                             onValueChange(formatMetric(value, shortcut))
-                            focusManager.clearFocus()
+                            if (focusNextOnDone) {
+                                focusManager.moveFocus(FocusDirection.Next)
+                            } else {
+                                focusManager.clearFocus()
+                            }
                         }
                     ),
                     modifier = Modifier
@@ -265,10 +285,15 @@ private fun SingleMetricCard(
                             onFocusChanged(focusState.isFocused)
                             if (focusState.isFocused && !wasFocused) {
                                 wasFocused = true
+                                previousValue = value
                                 onValueChange("")
                             } else if (!focusState.isFocused && wasFocused) {
                                 wasFocused = false
-                                onValueChange(formatMetric(value, shortcut))
+                                if (restorePreviousOnEmpty && value.isBlank() && previousValue.isNotBlank()) {
+                                    onValueChange(previousValue)
+                                } else {
+                                    onValueChange(formatMetric(value, shortcut))
+                                }
                             }
                         },
                     decorationBox = { innerTextField ->
