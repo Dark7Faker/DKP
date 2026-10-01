@@ -156,7 +156,7 @@ fun GoalMetricCard(
     modifier: Modifier = Modifier
 ) {
     SingleMetricCard(
-        modifier = modifier.fillMaxWidth().height(80.dp),
+        modifier = modifier.fillMaxWidth().height(88.dp),
         label = "GOAL",
         value = value,
         maxDigits = 7,

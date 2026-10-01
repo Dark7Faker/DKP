@@ -9,8 +9,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,7 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.dkpace.ui.components.ActionButtonsRow
+import com.example.dkpace.ui.components.ActionButtonsColumn
 import com.example.dkpace.ui.components.CurrentRunCard
 import com.example.dkpace.ui.components.HeaderSection
 import com.example.dkpace.ui.components.MetricCardsRow
@@ -295,14 +297,34 @@ fun ArcadeTrackerScreen() {
                 batterySaverEnabled = true
             })
 
-            // 2. Goal takes the former full-width Current Level position
-            GoalMetricCard(
-                value = goal,
-                onValueChange = { goal = it },
-                onInputFocusChanged = { inputFieldFocused = it }
-            )
+            // 2. Goal block beside the vertically stacked action buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                GoalMetricCard(
+                    value = goal,
+                    onValueChange = { goal = it },
+                    onInputFocusChanged = { inputFieldFocused = it },
+                    modifier = Modifier.weight(1f)
+                )
 
-            // 3. Row of 4 Metric Cards
+                ActionButtonsColumn(
+                    modifier = Modifier.weight(1f),
+                    onResetRun = {
+                        focusManager.clearFocus()
+                        metricsByLevel.clear()
+                        currentLevel = 4
+                    },
+                    onSaveRun = {
+                        focusManager.clearFocus()
+                        saveRunMenuVisible = true
+                    }
+                )
+            }
+
+            // 4. Row of 4 Metric Cards
             MetricCardsRow(
                 score = currentMetrics.score,
                 bonus = currentMetrics.bonus,
@@ -322,19 +344,6 @@ fun ArcadeTrackerScreen() {
                 },
                 onInputFocusChanged = { inputFieldFocused = it },
                 onScoreFocusChanged = { scoreInputFocused = it }
-            )
-
-            // 4. Action Buttons (RESET RUN, SAVE RUN)
-            ActionButtonsRow(
-                onResetRun = {
-                    focusManager.clearFocus()
-                    metricsByLevel.clear()
-                    currentLevel = 4
-                },
-                onSaveRun = {
-                    focusManager.clearFocus()
-                    saveRunMenuVisible = true
-                }
             )
 
             // 5. Current Run Grid Card
