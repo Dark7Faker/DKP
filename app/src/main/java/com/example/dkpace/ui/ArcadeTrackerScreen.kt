@@ -47,6 +47,7 @@ import com.example.dkpace.ui.components.GoalMetricCard
 import com.example.dkpace.ui.components.LevelMetrics
 import com.example.dkpace.ui.components.PaceChartCard
 import com.example.dkpace.ui.components.PacePoint
+import com.example.dkpace.ui.components.SaveRunMenu
 import com.example.dkpace.ui.theme.ArcadeColors
 import kotlin.math.roundToLong
 
@@ -70,6 +71,7 @@ fun ArcadeTrackerScreen() {
     var currentLevel by remember { mutableIntStateOf(4) }
     var batterySaverEnabled by remember { mutableStateOf(false) }
     var inputFieldFocused by remember { mutableStateOf(false) }
+    var saveRunMenuVisible by remember { mutableStateOf(false) }
     SideEffect {
         window?.let { currentWindow ->
             val keepScreenOnFlag = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
@@ -205,9 +207,10 @@ fun ArcadeTrackerScreen() {
                 modifier = Modifier.size(120.dp)
             )
         }
-    } else Scaffold(
-        containerColor = ArcadeColors.Background
-    ) { innerPadding ->
+    } else Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = ArcadeColors.Background
+        ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -280,6 +283,10 @@ fun ArcadeTrackerScreen() {
                     focusManager.clearFocus()
                     metricsByLevel.clear()
                     currentLevel = 4
+                },
+                onSaveRun = {
+                    focusManager.clearFocus()
+                    saveRunMenuVisible = true
                 }
             )
 
@@ -304,6 +311,31 @@ fun ArcadeTrackerScreen() {
 
             // Bottom Spacer
             Spacer(modifier = Modifier.height(8.dp))
+        }
+        }
+
+        if (saveRunMenuVisible) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.72f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {},
+                contentAlignment = Alignment.Center
+            ) {
+                SaveRunMenu(
+                    goal = goal,
+                    score = currentMetrics.score,
+                    level = currentLevel,
+                    pace = pace?.formatMetric() ?: "---",
+                    average = currentAverage?.formatMetric() ?: "---",
+                    averageColor = progressColor,
+                    onDismiss = { saveRunMenuVisible = false },
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 16.dp)
+                )
+            }
         }
     }
 }

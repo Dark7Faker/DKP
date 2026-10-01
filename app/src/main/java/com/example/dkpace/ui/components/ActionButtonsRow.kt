@@ -30,7 +30,8 @@ import com.example.dkpace.ui.theme.ArcadeColors
 @Composable
 fun ActionButtonsRow(
     modifier: Modifier = Modifier,
-    onResetRun: () -> Unit = {}
+    onResetRun: () -> Unit = {},
+    onSaveRun: () -> Unit = {}
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -82,7 +83,8 @@ fun ActionButtonsRow(
                 .background(
                     color = ArcadeColors.GreenAccent,
                     shape = RoundedCornerShape(12.dp)
-                ),
+                )
+                .clickable(onClick = onSaveRun),
             contentAlignment = Alignment.Center
         ) {
             Row(
