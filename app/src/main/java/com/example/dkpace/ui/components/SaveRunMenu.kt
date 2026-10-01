@@ -263,7 +263,14 @@ private fun SaveRunNameInput(
             BasicTextField(
                 value = value,
                 onValueChange = { input ->
-                    if (input.codePointCount(0, input.length) <= 20) onValueChange(input)
+                    val capitalized = input.replaceFirstChar { it.uppercase() }
+                    val length = capitalized.codePointCount(0, capitalized.length)
+                    val capped = if (length > 25) {
+                        capitalized.substring(0, capitalized.offsetByCodePoints(0, 25))
+                    } else {
+                        capitalized
+                    }
+                    onValueChange(capped)
                 },
                 singleLine = true,
                 textStyle = androidx.compose.ui.text.TextStyle(
