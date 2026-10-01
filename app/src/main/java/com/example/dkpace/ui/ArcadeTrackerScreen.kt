@@ -132,7 +132,11 @@ fun ArcadeTrackerScreen() {
         val levelPace = ((total - start).toDouble() / (level - 4)) * 17 + 700 + start
         if (levelPace < 0) return@mapNotNull null
 
-        PacePoint(level = level, pace = levelPace.roundToLong().roundToHundred())
+        PacePoint(
+            level = level,
+            pace = levelPace.roundToLong().roundToHundred(),
+            death = metrics.death.toMetricLong()
+        )
     }
     val latestScoredLevel = metricsByLevel
         .filter { (_, metrics) -> metrics.score.isNotBlank() && metrics.score.toMetricLong() >= 0L }

@@ -46,7 +46,8 @@ private const val PACE_AXIS_BASE_STEP = 50_000L
 
 data class PacePoint(
     val level: Int,
-    val pace: Long
+    val pace: Long,
+    val death: Long = 0L
 )
 
 @Composable
@@ -244,16 +245,29 @@ fun PaceChartCard(
                                 Offset(x, y)
                             }
 
-                            points.forEachIndexed { index, _ ->
+                            points.forEachIndexed { index, pacePoint ->
                                 val point = pointPositions[index]
                                 val barTop = point.y.coerceIn(verticalInset, chartHeight - verticalInset)
+                                val barGradientColors = when {
+                                    goal == null -> listOf(
+                                        Color(0xFF00B0FF),
+                                        Color(0xFF005299),
+                                        Color(0xFF002244)
+                                    )
+                                    pacePoint.pace >= goal -> listOf(
+                                        ArcadeColors.GreenAccent,
+                                        Color(0xFF009B57),
+                                        Color(0xFF003D26)
+                                    )
+                                    else -> listOf(
+                                        ArcadeColors.RedAccent,
+                                        Color(0xFFB01235),
+                                        Color(0xFF4A0717)
+                                    )
+                                }
                                 drawRoundRect(
                                     brush = Brush.verticalGradient(
-                                        colors = listOf(
-                                            Color(0xFF00B0FF),
-                                            Color(0xFF005299),
-                                            Color(0xFF002244)
-                                        ),
+                                        colors = barGradientColors,
                                         startY = barTop,
                                         endY = chartHeight - verticalInset
                                     ),
@@ -272,21 +286,24 @@ fun PaceChartCard(
                             }
 
                             pointPositions.forEachIndexed { index, point ->
+                                val pointColor = when {
+                                    points[index].death > 0L -> ArcadeColors.RedAccent
+                                    else -> Color(0xFF00B0FF)
+                                }
                                 if (points[index].level == selectedLevel) {
-                                    val purple = Color(0xFFB000FF)
                                     drawCircle(
-                                        color = purple.copy(alpha = 0.16f),
+                                        color = pointColor.copy(alpha = 0.16f),
                                         radius = 16.dp.toPx(),
                                         center = point
                                     )
                                     drawCircle(
-                                        color = purple.copy(alpha = 0.3f),
+                                        color = pointColor.copy(alpha = 0.3f),
                                         radius = 11.dp.toPx(),
                                         center = point
                                     )
-                                    drawCircle(purple, radius = 7.dp.toPx(), center = point)
+                                    drawCircle(pointColor, radius = 7.dp.toPx(), center = point)
                                 } else {
-                                    drawCircle(Color(0xFF00E5FF), radius = 7.dp.toPx(), center = point)
+                                    drawCircle(pointColor, radius = 7.dp.toPx(), center = point)
                                 }
                                 drawCircle(Color.White, radius = 3.5.dp.toPx(), center = point)
                             }
