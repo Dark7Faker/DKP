@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +21,6 @@ import androidx.compose.material.icons.filled.Balance
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Star
@@ -40,7 +40,6 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun SaveRunMenu(
-    goal: String,
     score: String,
     level: Int,
     pace: String,
@@ -87,14 +86,16 @@ fun SaveRunMenu(
                     modifier = Modifier.weight(1.15f),
                     label = "RUN NAME",
                     icon = Icons.Default.Edit,
-                    value = "New Run"
+                    value = "New Run",
+                    borderColor = ArcadeColors.CyanPrimary.copy(alpha = 0.6f)
                 )
                 SaveRunInputPreview(
                     modifier = Modifier.weight(0.85f),
                     label = "SCORE",
                     icon = Icons.Default.Star,
                     value = score.ifBlank { "New Score" },
-                    tint = Color(0xFFB000FF)
+                    tint = Color(0xFFB000FF),
+                    borderColor = Color(0xFFB000FF).copy(alpha = 0.6f)
                 )
             }
 
@@ -106,41 +107,38 @@ fun SaveRunMenu(
 
             Spacer(Modifier.height(14.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                SaveRunSummaryItem(
-                    modifier = Modifier.weight(1f),
-                    label = "PACE",
-                    value = pace,
-                    icon = Icons.Default.EmojiEvents,
-                    tint = ArcadeColors.CyanPrimary
-                )
-                SaveRunSummaryItem(
-                    modifier = Modifier.weight(1f),
-                    label = "AVERAGE",
-                    value = average,
-                    icon = Icons.Default.Balance,
-                    tint = averageColor
-                )
-                SaveRunSummaryItem(
-                    modifier = Modifier.weight(1f),
-                    label = "GOAL",
-                    value = goal.ifBlank { "—" },
-                    icon = Icons.Default.Flag,
-                    tint = ArcadeColors.GoldAccent,
-                    borderColor = ArcadeColors.GoldAccent
-                )
-                SaveRunSummaryItem(
-                    modifier = Modifier.weight(1f),
-                    label = "LEVEL",
-                    value = String.format("L = %02d", level),
-                    icon = Icons.Default.Adjust,
-                    tint = ArcadeColors.CyanPrimary,
-                    borderColor = ArcadeColors.CyanBorder,
-                    emphasizeValue = true
-                )
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val trackerLevelBlockWidth = (maxWidth + 18.dp) / 3.5f
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SaveRunSummaryItem(
+                        modifier = Modifier.weight(1.1f).height(80.dp),
+                        label = "PACE",
+                        value = pace,
+                        icon = Icons.Default.EmojiEvents,
+                        tint = Color.White,
+                        borderColor = Color.White
+                    )
+                    SaveRunSummaryItem(
+                        modifier = Modifier.weight(0.9f).height(80.dp),
+                        label = "AVERAGE",
+                        value = average,
+                        icon = Icons.Default.Balance,
+                        tint = averageColor,
+                        borderColor = averageColor
+                    )
+                    SaveRunSummaryItem(
+                        modifier = Modifier.width(trackerLevelBlockWidth).height(80.dp),
+                        label = "LEVEL",
+                        value = String.format("L = %02d", level),
+                        icon = Icons.Default.Adjust,
+                        tint = ArcadeColors.CyanPrimary,
+                        borderColor = ArcadeColors.CyanBorder,
+                        emphasizeValue = true
+                    )
+                }
             }
 
             Spacer(Modifier.height(14.dp))
@@ -242,7 +240,8 @@ private fun SaveRunInputPreview(
     label: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     value: String,
-    tint: Color = ArcadeColors.CyanPrimary
+    tint: Color = ArcadeColors.CyanPrimary,
+    borderColor: Color = ArcadeColors.BorderSubtle
 ) {
     Column(modifier = modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -267,7 +266,7 @@ private fun SaveRunInputPreview(
                 .fillMaxWidth()
                 .height(44.dp)
                 .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(8.dp))
-                .border(1.dp, tint.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                .border(1.dp, borderColor, RoundedCornerShape(8.dp))
                 .padding(horizontal = 10.dp),
             contentAlignment = Alignment.CenterStart
         ) {
@@ -295,6 +294,7 @@ private fun SaveRunSummaryItem(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     tint: Color,
     borderColor: Color = ArcadeColors.BorderSubtle,
+    labelColor: Color = tint,
     emphasizeValue: Boolean = false
 ) {
     Column(
@@ -312,7 +312,7 @@ private fun SaveRunSummaryItem(
             Spacer(Modifier.width(3.dp))
             Text(
                 text = label,
-                color = tint,
+                color = labelColor,
                 fontSize = 8.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1

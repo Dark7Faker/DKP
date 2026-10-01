@@ -326,7 +326,6 @@ fun ArcadeTrackerScreen() {
                 contentAlignment = Alignment.Center
             ) {
                 SaveRunMenu(
-                    goal = goal,
                     score = currentMetrics.score,
                     level = currentLevel,
                     pace = pace?.formatMetric() ?: "---",
