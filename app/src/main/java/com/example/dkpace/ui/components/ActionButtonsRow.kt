@@ -66,7 +66,7 @@ fun ActionButtonsRow(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "RESET RUN",
+                    text = "RESET",
                     color = ArcadeColors.TextWhite,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
@@ -99,7 +99,7 @@ fun ActionButtonsRow(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "SAVE RUN",
+                    text = "SAVE",
                     color = Color.White,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,

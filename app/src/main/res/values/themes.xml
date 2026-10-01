@@ -2,4 +2,8 @@
 <resources>
 
     <style name="Theme.DKPace" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="DatePickerDialogTheme" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/date_picker_accent</item>
+    </style>
 </resources>

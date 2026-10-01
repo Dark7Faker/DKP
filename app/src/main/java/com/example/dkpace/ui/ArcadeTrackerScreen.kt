@@ -103,6 +103,7 @@ fun ArcadeTrackerScreen() {
     var goal by remember {
         mutableStateOf(preferences.getString("goal", "").orEmpty())
     }
+    var saveRunName by remember { mutableStateOf("") }
     LaunchedEffect(goal) {
         val roundedGoal = goal.toMetricLong()
         if (roundedGoal > 0L) {
@@ -128,6 +129,45 @@ fun ArcadeTrackerScreen() {
         if (levelPace < 0) return@mapNotNull null
 
         PacePoint(level = level, pace = levelPace.roundToLong().roundToHundred())
+    }
+    val latestScoredLevel = metricsByLevel
+        .filter { (_, metrics) -> metrics.score.isNotBlank() && metrics.score.toMetricLong() >= 0L }
+        .keys
+        .maxOrNull()
+    val latestScoredMetrics = latestScoredLevel?.let { metricsByLevel[it] }
+    val startScore = startingMetrics.score
+        .takeIf { it.isNotBlank() && it.toMetricLong() >= 0L }
+        ?.let { it.toMetricLong().formatMetric() } ?: "---"
+    val saveRunScore = latestScoredMetrics?.score
+        ?.takeIf { it.isNotBlank() && it.toMetricLong() >= 0L }
+        ?.let { it.toMetricLong().formatMetric() }
+        .orEmpty()
+    val saveRunPacePoint = paceHistory.firstOrNull { it.level == latestScoredLevel }
+    val saveRunPace = saveRunPacePoint?.pace?.formatMetric() ?: "---"
+    val saveRunAverageValue = latestScoredLevel
+        ?.takeIf { it > 4 }
+        ?.let { level ->
+            latestScoredMetrics
+                ?.takeIf { it.score.isNotBlank() }
+                ?.let { metrics ->
+                    (
+                        metrics.score.toMetricLong() +
+                            metrics.bonus.toMetricLong() -
+                            start -
+                            metrics.death.toMetricLong()
+                        ).toDouble() / (level - 4)
+                }
+        }
+    val saveRunAverage = saveRunAverageValue
+        ?.takeIf { it > 4 }
+        ?.roundToLong()
+        ?.formatMetric() ?: "---"
+    val saveRunProgressColor = if (
+        saveRunPacePoint != null && goal.isNotBlank() && saveRunPacePoint.pace < goal.toMetricLong()
+    ) {
+        ArcadeColors.RedAccent
+    } else {
+        ArcadeColors.GreenAccent
     }
     val pace = if (currentLevel == 4 || currentMetrics.score.isBlank()) {
         null
@@ -322,15 +362,18 @@ fun ArcadeTrackerScreen() {
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) {},
+                    ) { focusManager.clearFocus() },
                 contentAlignment = Alignment.Center
             ) {
                 SaveRunMenu(
-                    score = currentMetrics.score,
-                    level = currentLevel,
-                    pace = pace?.formatMetric() ?: "---",
-                    average = currentAverage?.formatMetric() ?: "---",
-                    averageColor = progressColor,
+                    runName = saveRunName,
+                    onRunNameChange = { saveRunName = it },
+                    startScore = startScore,
+                    score = saveRunScore,
+                    level = latestScoredLevel,
+                    pace = saveRunPace,
+                    average = saveRunAverage,
+                    averageColor = saveRunProgressColor,
                     onDismiss = { saveRunMenuVisible = false },
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 16.dp)
                 )
