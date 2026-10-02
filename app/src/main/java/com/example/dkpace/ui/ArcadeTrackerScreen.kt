@@ -47,6 +47,7 @@ import com.example.dkpace.ui.components.HeaderSection
 import com.example.dkpace.ui.components.MetricCardsRow
 import com.example.dkpace.ui.components.GoalMetricCard
 import com.example.dkpace.ui.components.LevelMetrics
+import com.example.dkpace.ui.components.MainNavigationBar
 import com.example.dkpace.ui.components.PaceChartCard
 import com.example.dkpace.ui.components.PacePoint
 import com.example.dkpace.ui.components.SaveRunMenu
@@ -377,6 +378,8 @@ fun ArcadeTrackerScreen() {
             Spacer(modifier = Modifier.height(8.dp))
         }
         }
+
+        MainNavigationBar(modifier = Modifier.align(Alignment.BottomCenter))
 
         if (saveRunMenuVisible) {
             Box(
