@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -184,7 +185,10 @@ fun SaveRunMenu(
                         icon = Icons.Default.Adjust,
                         tint = ArcadeColors.CyanPrimary,
                         borderColor = ArcadeColors.CyanBorder,
-                        emphasizeValue = level != null
+                        emphasizeValue = level != null,
+                        progress = level?.let {
+                            (14f + (it - 4).coerceIn(0, 17) * 6f) / 117f
+                        }
                     )
                 }
             }
@@ -467,13 +471,15 @@ private fun SaveRunSummaryItem(
     labelColor: Color = tint,
     emphasizeValue: Boolean = false,
     valueColor: Color? = null,
-    valueFontSize: TextUnit? = null
+    valueFontSize: TextUnit? = null,
+    progress: Float? = null
 ) {
     Column(
         modifier = modifier
             .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(9.dp))
             .border(1.dp, borderColor, RoundedCornerShape(9.dp))
-            .padding(horizontal = 5.dp, vertical = 9.dp),
+            .padding(horizontal = 5.dp, vertical = if (progress != null) 4.dp else 9.dp)
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -500,5 +506,23 @@ private fun SaveRunSummaryItem(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+        if (progress != null) {
+            Spacer(Modifier.height(4.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(5.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(ArcadeColors.CyanBorder.copy(alpha = 0.55f))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(progress.coerceIn(0f, 1f))
+                        .height(5.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(ArcadeColors.CyanPrimary)
+                )
+            }
+        }
     }
 }
