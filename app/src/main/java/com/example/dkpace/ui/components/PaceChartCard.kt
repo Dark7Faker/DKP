@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.filled.PriorityHigh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,6 +59,7 @@ data class PacePoint(
 fun PaceChartCard(
     points: List<PacePoint>,
     goal: Long?,
+    deathpoints: Long,
     selectedLevel: Int,
     onLevelSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
@@ -93,7 +95,8 @@ fun PaceChartCard(
         Column {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.Top) {
                     Icon(
@@ -111,11 +114,59 @@ fun PaceChartCard(
                         letterSpacing = 1.5.sp
                     )
                 }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_skull),
+                        contentDescription = null,
+                        tint = ArcadeColors.RedAccent,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = "Deathpoints: ${formatDeathpoints(deathpoints)}",
+                        color = ArcadeColors.RedAccent,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth().height(190.dp)) {
+            if (points.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(190.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PriorityHigh,
+                            contentDescription = null,
+                            tint = ArcadeColors.TextMuted,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "No Graph can be shown",
+                            color = ArcadeColors.TextMuted,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Icon(
+                            imageVector = Icons.Default.PriorityHigh,
+                            contentDescription = null,
+                            tint = ArcadeColors.TextMuted,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+            } else {
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth().height(190.dp)) {
                 val plotWidth = (maxWidth - 38.dp).coerceAtLeast(0.dp)
                 val barWidth = if (xAxisLevels.isNotEmpty()) {
                     minOf(plotWidth / xAxisLevels.size * 0.45f, 26.dp)
@@ -393,11 +444,15 @@ fun PaceChartCard(
                         }
                     }
                 }
+                }
             }
 
         }
     }
 }
+
+private fun formatDeathpoints(value: Long): String =
+    value.toString().reversed().chunked(3).joinToString(".").reversed()
 
 private fun formatAxisValue(rounded: Long): String {
     return when {

@@ -307,9 +307,6 @@ fun ArcadeTrackerScreen() {
             ) {
                 GoalMetricCard(
                     value = goal,
-                    deathpoints = metricsByLevel.values.sumOf { metrics ->
-                        metrics.death.toMetricLong().takeIf { it > 0L } ?: 0L
-                    },
                     onValueChange = { goal = it },
                     onInputFocusChanged = { inputFieldFocused = it },
                     modifier = Modifier.weight(1f)
@@ -362,14 +359,15 @@ fun ArcadeTrackerScreen() {
             )
 
             // 6. Pace Over Time Chart Card
-            if (paceHistory.isNotEmpty()) {
-                PaceChartCard(
-                    points = paceHistory,
-                    goal = goal.takeIf { it.isNotBlank() }?.toMetricLong(),
-                    selectedLevel = currentLevel,
-                    onLevelSelected = { currentLevel = it }
-                )
-            }
+            PaceChartCard(
+                points = paceHistory,
+                goal = goal.takeIf { it.isNotBlank() }?.toMetricLong(),
+                deathpoints = metricsByLevel.values.sumOf { metrics ->
+                    metrics.death.toMetricLong().takeIf { it > 0L } ?: 0L
+                },
+                selectedLevel = currentLevel,
+                onLevelSelected = { currentLevel = it }
+            )
 
             // Bottom Spacer
             Spacer(modifier = Modifier.height(8.dp))
