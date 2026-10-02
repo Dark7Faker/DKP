@@ -83,6 +83,7 @@ fun MetricCardsRow(
             accentColor = Color(0xFFB000FF),
             borderColor = Color(0xFFB000FF),
             inputTextColor = Color(0xFFB000FF),
+            zeroAsEmpty = true,
             icon = {
                 Icon(
                     imageVector = Icons.Default.Star,
@@ -105,6 +106,7 @@ fun MetricCardsRow(
             accentColor = Color(0xFFC0C0C0),
             borderColor = Color(0xFFC0C0C0),
             inputTextColor = Color(0xFFC0C0C0),
+            zeroAsEmpty = true,
             icon = {
                 Icon(
                     imageVector = Icons.Default.AccessTime,
@@ -192,6 +194,7 @@ private fun SingleMetricCard(
     hideBorder: Boolean = false,
     restorePreviousOnEmpty: Boolean = true,
     compact: Boolean = false,
+    zeroAsEmpty: Boolean = false,
     icon: @Composable () -> Unit
 ) {
     var wasFocused by remember { mutableStateOf(false) }
@@ -268,7 +271,7 @@ private fun SingleMetricCard(
                     ),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            onValueChange(formatMetric(value, shortcut))
+                            onValueChange(formatMetric(value, shortcut, zeroAsEmpty))
                             focusManager.clearFocus()
                         }
                     ),
@@ -285,7 +288,7 @@ private fun SingleMetricCard(
                                 if (restorePreviousOnEmpty && value.isBlank() && previousValue.isNotBlank()) {
                                     onValueChange(previousValue)
                                 } else {
-                                    onValueChange(formatMetric(value, shortcut))
+                                    onValueChange(formatMetric(value, shortcut, zeroAsEmpty))
                                 }
                             }
                         },
@@ -301,8 +304,13 @@ private fun SingleMetricCard(
     }
 }
 
-private fun formatMetric(value: String, shortcut: MetricShortcut): String {
+private fun formatMetric(
+    value: String,
+    shortcut: MetricShortcut,
+    zeroAsEmpty: Boolean = false
+): String {
     val digits = value.filter(Char::isDigit)
+    if (zeroAsEmpty && digits.toLongOrNull() == 0L) return ""
     val expandedDigits = when (shortcut) {
         MetricShortcut.SCORE -> if (digits.length == 4) "${digits}00" else digits
         MetricShortcut.BONUS_OR_DEATH -> if (digits.length in 1..2) "${digits}00" else digits
