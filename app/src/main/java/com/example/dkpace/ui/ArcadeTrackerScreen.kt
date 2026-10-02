@@ -211,9 +211,13 @@ fun ArcadeTrackerScreen() {
         remainingPoints.toDouble() / (21 - currentLevel)
     }
     val neededAverage = neededAverageValue?.takeIf { it > 0 }?.roundToLong()
-    val nextLevelNeededAverage = neededAverageValue?.let { needed ->
-        val nextNeeded = currentMetrics.score.toMetricLong() + needed
-        nextNeeded.takeIf { it > 0 }?.roundToLong()
+    val nextLevelNeededAverage = if (neededAverage == null) {
+        null
+    } else {
+        neededAverageValue?.let { needed ->
+            val nextNeeded = currentMetrics.score.toMetricLong() + needed
+            nextNeeded.takeIf { it > 0 }?.roundToLong()
+        }
     }
     val progressColor = if (
         pace != null && goal.isNotBlank() && pace.roundToHundred() < goal.toMetricLong()
