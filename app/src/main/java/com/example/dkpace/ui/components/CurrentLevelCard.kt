@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,12 +49,13 @@ fun CurrentLevelCard(
             )
             .padding(
                 horizontal = if (compact) 6.dp else 12.dp,
-                vertical = if (compact) 10.dp else 12.dp
+                vertical = if (compact) 6.dp else 12.dp
             ),
         contentAlignment = if (compact) Alignment.TopCenter else Alignment.Center
     ) {
         // Center Content: CURRENT LEVEL & selected level
         Column(
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -82,6 +84,25 @@ fun CurrentLevelCard(
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 1.sp
             )
+            if (compact) {
+                val levelProgress = (14f + (currentLevel - 4).coerceIn(0, 17) * 6f) / 117f
+                Spacer(modifier = Modifier.height(4.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .height(5.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(ArcadeColors.CyanBorder.copy(alpha = 0.55f))
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(levelProgress)
+                            .height(5.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(ArcadeColors.CyanPrimary)
+                    )
+                }
+            }
         }
     }
 }
