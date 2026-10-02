@@ -186,6 +186,7 @@ fun SaveRunMenu(
                         tint = ArcadeColors.CyanPrimary,
                         borderColor = ArcadeColors.CyanBorder,
                         emphasizeValue = level != null,
+                        valueColor = if (level == null) ArcadeColors.CyanPrimary else null,
                         progress = level?.let {
                             (14f + (it - 4).coerceIn(0, 17) * 6f) / 117f
                         }
