@@ -69,7 +69,7 @@ enum class RunSort(val label: String, val icon: ImageVector) {
     SCORE("Score", Icons.Default.Star),
     PACE("Pace", Icons.Default.EmojiEvents),
     LEVEL("Level", Icons.Default.Adjust),
-    AVERAGE("Average", Icons.Default.Balance)
+    AVERAGE("Avg", Icons.Default.Balance)
 }
 
 @Composable
