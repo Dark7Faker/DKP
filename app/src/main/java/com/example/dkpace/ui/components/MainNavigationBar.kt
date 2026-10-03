@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,8 +23,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.dkpace.ui.theme.ArcadeColors
 
+enum class MainMenu { TRACKER, ANALYZE }
+
 @Composable
-fun MainNavigationBar(modifier: Modifier = Modifier) {
+fun MainNavigationBar(
+    selectedMenu: MainMenu,
+    onMenuSelected: (MainMenu) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val barShape = RoundedCornerShape(18.dp)
 
     Box(
@@ -41,24 +48,30 @@ fun MainNavigationBar(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.Visibility,
-                contentDescription = "View menu",
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
-            Icon(
-                imageVector = Icons.Default.BarChart,
-                contentDescription = "DK Pace Tracker menu",
-                tint = ArcadeColors.CyanPrimary,
-                modifier = Modifier.size(28.dp)
-            )
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = "Settings menu",
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
+            IconButton(onClick = { onMenuSelected(MainMenu.ANALYZE) }) {
+                Icon(
+                    imageVector = Icons.Default.Visibility,
+                    contentDescription = "Analyze runs",
+                    tint = if (selectedMenu == MainMenu.ANALYZE) ArcadeColors.CyanPrimary else Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            IconButton(onClick = { onMenuSelected(MainMenu.TRACKER) }) {
+                Icon(
+                    imageVector = Icons.Default.BarChart,
+                    contentDescription = "DK Pace Tracker menu",
+                    tint = if (selectedMenu == MainMenu.TRACKER) ArcadeColors.CyanPrimary else Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+            IconButton(onClick = {}) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
     }
 }

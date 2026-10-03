@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Battery2Bar
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -48,11 +49,18 @@ import com.example.dkpace.ui.components.MetricCardsRow
 import com.example.dkpace.ui.components.GoalMetricCard
 import com.example.dkpace.ui.components.LevelMetrics
 import com.example.dkpace.ui.components.MainNavigationBar
+import com.example.dkpace.ui.components.MainMenu
+import com.example.dkpace.ui.components.AnalyzeRunsScreen
+import com.example.dkpace.ui.components.RunSort
+import com.example.dkpace.ui.components.RunSortControl
+import com.example.dkpace.ui.components.SavedRun
 import com.example.dkpace.ui.components.PaceChartCard
 import com.example.dkpace.ui.components.PacePoint
 import com.example.dkpace.ui.components.SaveRunMenu
 import com.example.dkpace.ui.theme.ArcadeColors
 import kotlin.math.roundToLong
+import org.json.JSONArray
+import org.json.JSONObject
 
 @Composable
 fun ArcadeTrackerScreen() {
@@ -75,6 +83,14 @@ fun ArcadeTrackerScreen() {
     var batterySaverEnabled by remember { mutableStateOf(false) }
     var inputFieldFocused by remember { mutableStateOf(false) }
     var saveRunMenuVisible by remember { mutableStateOf(false) }
+    var selectedMenu by remember { mutableStateOf(MainMenu.TRACKER) }
+    var runSort by remember { mutableStateOf(RunSort.DATE) }
+    var savedRuns by remember {
+        mutableStateOf(loadSavedRuns(preferences.getString("saved_runs", null)))
+    }
+    LaunchedEffect(selectedMenu) {
+        scrollState.scrollTo(0)
+    }
     SideEffect {
         window?.let { currentWindow ->
             val keepScreenOnFlag = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
@@ -267,28 +283,30 @@ fun ArcadeTrackerScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .pointerInput(currentLevel) {
+                .pointerInput(currentLevel, selectedMenu) {
                     detectTapGestures(
                         onTap = { tap ->
-                            val edgeWidth = 48.dp.toPx()
-                            val tappedLevelEdge = tap.x <= edgeWidth || tap.x >= size.width - edgeWidth
-                            if (inputFieldFocused) {
-                                focusManager.clearFocus()
-                                when {
-                                    tap.x <= edgeWidth && currentLevel > 4 -> currentLevel--
-                                    tap.x >= size.width - edgeWidth && currentLevel < 21 -> currentLevel++
-                                }
-                            } else {
-                                when {
-                                    tap.x <= edgeWidth && currentLevel > 4 -> {
-                                        focusManager.clearFocus()
-                                        currentLevel--
+                            if (selectedMenu == MainMenu.TRACKER) {
+                                val edgeWidth = 48.dp.toPx()
+                                val tappedLevelEdge = tap.x <= edgeWidth || tap.x >= size.width - edgeWidth
+                                if (inputFieldFocused) {
+                                    focusManager.clearFocus()
+                                    when {
+                                        tap.x <= edgeWidth && currentLevel > 4 -> currentLevel--
+                                        tap.x >= size.width - edgeWidth && currentLevel < 21 -> currentLevel++
                                     }
-                                    tap.x >= size.width - edgeWidth && currentLevel < 21 -> {
-                                        focusManager.clearFocus()
-                                        currentLevel++
+                                } else {
+                                    when {
+                                        tap.x <= edgeWidth && currentLevel > 4 -> {
+                                            focusManager.clearFocus()
+                                            currentLevel--
+                                        }
+                                        tap.x >= size.width - edgeWidth && currentLevel < 21 -> {
+                                            focusManager.clearFocus()
+                                            currentLevel++
+                                        }
+                                        !tappedLevelEdge -> focusManager.clearFocus()
                                     }
-                                    !tappedLevelEdge -> focusManager.clearFocus()
                                 }
                             }
                         }
@@ -298,6 +316,21 @@ fun ArcadeTrackerScreen() {
                 .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+            if (selectedMenu == MainMenu.ANALYZE) {
+                HeaderSection(
+                    title = "ANALYZE RUNS",
+                    titleIcon = Icons.Default.Visibility,
+                    showBatterySaver = false,
+                    trailingContent = {
+                        RunSortControl(sort = runSort, onSortSelected = { runSort = it })
+                    },
+                    onBatterySaverClick = {
+                        focusManager.clearFocus()
+                        batterySaverEnabled = true
+                    }
+                )
+                AnalyzeRunsScreen(runs = savedRuns, sort = runSort)
+            } else {
             // 1. Top Header
             HeaderSection(onBatterySaverClick = {
                 focusManager.clearFocus()
@@ -376,10 +409,15 @@ fun ArcadeTrackerScreen() {
 
             // Bottom Spacer
             Spacer(modifier = Modifier.height(8.dp))
+            }
         }
         }
 
-        MainNavigationBar(modifier = Modifier.align(Alignment.BottomCenter))
+        MainNavigationBar(
+            selectedMenu = selectedMenu,
+            onMenuSelected = { selectedMenu = it },
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
 
         if (saveRunMenuVisible) {
             Box(
@@ -402,6 +440,21 @@ fun ArcadeTrackerScreen() {
                     average = saveRunAverage,
                     averageColor = saveRunProgressColor,
                     onDismiss = { saveRunMenuVisible = false },
+                    onSave = { enteredScore, date ->
+                        val run = SavedRun(
+                            name = saveRunName.trim().ifBlank { enteredScore },
+                            score = enteredScore,
+                            date = date.toString(),
+                            pace = saveRunPace,
+                            level = latestScoredLevel,
+                            average = saveRunAverage,
+                            savedAt = System.currentTimeMillis(),
+                            averageIsRed = saveRunProgressColor == ArcadeColors.RedAccent
+                        )
+                        savedRuns = savedRuns + run
+                        preferences.edit().putString("saved_runs", saveRunsJson(savedRuns)).apply()
+                        saveRunMenuVisible = false
+                    },
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 16.dp)
                 )
             }
@@ -420,6 +473,38 @@ private fun Long.formatMetric(): String {
 }
 
 private fun Long.roundToHundred(): Long = ((this + 50) / 100) * 100
+
+private fun loadSavedRuns(json: String?): List<SavedRun> = runCatching {
+    val array = JSONArray(json ?: "[]")
+    List(array.length()) { index ->
+        val item = array.getJSONObject(index)
+        SavedRun(
+            name = item.optString("name"),
+            score = item.optString("score"),
+            date = item.optString("date"),
+            pace = item.optString("pace", "---"),
+            level = if (item.isNull("level")) null else item.optInt("level"),
+            average = item.optString("average", "---"),
+            savedAt = item.optLong("savedAt", 0L),
+            averageIsRed = item.optBoolean("averageIsRed", false)
+        )
+    }
+}.getOrDefault(emptyList())
+
+private fun saveRunsJson(runs: List<SavedRun>): String = JSONArray().apply {
+    runs.forEach { run ->
+        put(JSONObject().apply {
+            put("name", run.name)
+            put("score", run.score)
+            put("date", run.date)
+            put("pace", run.pace)
+            put("level", run.level ?: JSONObject.NULL)
+            put("average", run.average)
+            put("savedAt", run.savedAt)
+            put("averageIsRed", run.averageIsRed)
+        })
+    }
+}.toString()
 
 private tailrec fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this

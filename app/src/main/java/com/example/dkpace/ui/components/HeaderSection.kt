@@ -29,7 +29,12 @@ import com.example.dkpace.ui.theme.ArcadeColors
 @Composable
 fun HeaderSection(
     modifier: Modifier = Modifier,
-    onBatterySaverClick: () -> Unit = {}
+    onBatterySaverClick: () -> Unit = {},
+    showBatterySaver: Boolean = true,
+    trailingContent: (@Composable () -> Unit)? = null,
+    title: String = "DK PACE TRACKER",
+    titleEmoji: String? = null,
+    titleIcon: androidx.compose.ui.graphics.vector.ImageVector? = null
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -40,15 +45,26 @@ fun HeaderSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.BarChart,
-                contentDescription = null,
-                tint = ArcadeColors.CyanPrimary,
-                modifier = Modifier.size(32.dp)
-            )
+            if (titleIcon != null) {
+                Icon(
+                    imageVector = titleIcon,
+                    contentDescription = null,
+                    tint = ArcadeColors.CyanPrimary,
+                    modifier = Modifier.size(32.dp)
+                )
+            } else if (titleEmoji == null) {
+                Icon(
+                    imageVector = Icons.Default.BarChart,
+                    contentDescription = null,
+                    tint = ArcadeColors.CyanPrimary,
+                    modifier = Modifier.size(32.dp)
+                )
+            } else {
+                Text(text = titleEmoji, fontSize = 26.sp)
+            }
 
             Text(
-                text = "DK PACE TRACKER",
+                text = title,
                 color = ArcadeColors.TextWhite,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Black,
@@ -56,7 +72,9 @@ fun HeaderSection(
             )
         }
 
-        Box(
+        if (trailingContent != null) {
+            trailingContent()
+        } else if (showBatterySaver) Box(
             modifier = Modifier
                 .background(
                     color = ArcadeColors.CardBackground,

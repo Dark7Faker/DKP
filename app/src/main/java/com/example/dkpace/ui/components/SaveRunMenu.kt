@@ -71,6 +71,7 @@ fun SaveRunMenu(
     average: String,
     averageColor: Color,
     onDismiss: () -> Unit,
+    onSave: (score: String, date: LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -78,6 +79,7 @@ fun SaveRunMenu(
     var selectedDate by remember {
         mutableStateOf(LocalDate.now(ZoneId.systemDefault()))
     }
+    var editedScore by remember(score) { mutableStateOf(score) }
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -119,7 +121,8 @@ fun SaveRunMenu(
                 )
                 SaveRunScoreInput(
                     modifier = Modifier.weight(0.85f),
-                    initialScore = score
+                    initialScore = score,
+                    onScoreChange = { editedScore = it }
                 )
             }
 
@@ -216,7 +219,10 @@ fun SaveRunMenu(
                     label = "SAVE",
                     icon = Icons.Default.Save,
                     color = ArcadeColors.GreenAccent,
-                    onClick = {}
+                    onClick = {
+                        focusManager.clearFocus()
+                        onSave(editedScore, selectedDate)
+                    }
                 )
             }
         }
@@ -300,7 +306,8 @@ private fun SaveRunNameInput(
 @Composable
 private fun SaveRunScoreInput(
     modifier: Modifier,
-    initialScore: String
+    initialScore: String,
+    onScoreChange: (String) -> Unit
 ) {
     var score by remember(initialScore) { mutableStateOf(initialScore) }
     var previousScore by remember(initialScore) { mutableStateOf(initialScore) }
@@ -351,7 +358,10 @@ private fun SaveRunScoreInput(
                 value = score,
                 onValueChange = { input ->
                     val digits = input.filter(Char::isDigit)
-                    if (digits.length <= 7) score = digits
+                    if (digits.length <= 7) {
+                        score = digits
+                        onScoreChange(digits)
+                    }
                 },
                 singleLine = true,
                 textStyle = androidx.compose.ui.text.TextStyle(
@@ -379,6 +389,7 @@ private fun SaveRunScoreInput(
                             } else {
                                 formatSaveRunScore(score)
                             }
+                            onScoreChange(score)
                         }
                     }
             )
