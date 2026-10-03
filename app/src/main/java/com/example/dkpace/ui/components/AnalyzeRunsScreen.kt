@@ -10,17 +10,19 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material.icons.filled.Balance
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -34,8 +36,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,7 +68,8 @@ enum class RunSort(val label: String, val icon: ImageVector) {
     NAME("Name", Icons.Default.Edit),
     SCORE("Score", Icons.Default.Star),
     PACE("Pace", Icons.Default.EmojiEvents),
-    LEVEL("Level", Icons.Default.Adjust)
+    LEVEL("Level", Icons.Default.Adjust),
+    AVERAGE("Average", Icons.Default.Balance)
 }
 
 @Composable
@@ -71,7 +79,7 @@ fun RunSortControl(
     modifier: Modifier = Modifier
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
-    val sortControlWidth = 95.dp
+    val sortControlWidth = 93.dp
     val sortMenuShape = RoundedCornerShape(9.dp)
     Box(modifier = modifier.width(sortControlWidth)) {
         Row(
@@ -80,14 +88,35 @@ fun RunSortControl(
                 .background(ArcadeColors.CardBackground, sortMenuShape)
                 .border(1.dp, ArcadeColors.CyanBorder, sortMenuShape)
                 .clickable { menuExpanded = true }
-                .padding(horizontal = 8.dp, vertical = 7.dp),
+                .padding(horizontal = 7.dp, vertical = 7.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = null, tint = ArcadeColors.TextWhite, modifier = Modifier.size(16.dp))
-            Spacer(Modifier.width(5.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Sort: ", color = ArcadeColors.TextWhite, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                Text(sort.label, color = ArcadeColors.CyanPrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = sort.icon,
+                    contentDescription = null,
+                    tint = ArcadeColors.TextWhite,
+                    modifier = Modifier.size(19.dp)
+                )
+                Spacer(Modifier.width(3.dp))
+                Text(
+                    sort.label,
+                    modifier = Modifier.weight(1f),
+                    color = ArcadeColors.TextWhite,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = "Choose sort order",
+                    tint = ArcadeColors.TextWhite,
+                    modifier = Modifier.size(19.dp)
+                )
             }
         }
         DropdownMenu(
@@ -101,18 +130,26 @@ fun RunSortControl(
         ) {
             RunSort.entries.forEach { option ->
                 DropdownMenuItem(
+                    modifier = Modifier.height(35.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
                     text = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
                             Icon(
                                 imageVector = option.icon,
                                 contentDescription = null,
                                 tint = if (sort == option) ArcadeColors.CyanPrimary else ArcadeColors.TextSecondary,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(20.dp)
                             )
-                            Spacer(Modifier.width(8.dp))
+                            Spacer(Modifier.width(3.dp))
                             Text(
                                 option.label,
-                                color = if (sort == option) ArcadeColors.CyanPrimary else ArcadeColors.TextWhite
+                                color = if (sort == option) ArcadeColors.CyanPrimary else ArcadeColors.TextWhite,
+                                fontSize = 12.sp,
+                                maxLines = 1
                             )
                         }
                     },
@@ -133,6 +170,7 @@ fun AnalyzeRunsScreen(runs: List<SavedRun>, sort: RunSort, modifier: Modifier = 
         )
         RunSort.PACE -> runs.sortedByDescending { it.pace.toSortNumber() }
         RunSort.LEVEL -> runs.sortedByDescending { it.level ?: Int.MIN_VALUE }
+        RunSort.AVERAGE -> runs.sortedByDescending { it.average.toSortNumber() }
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
@@ -150,82 +188,108 @@ fun AnalyzeRunsScreen(runs: List<SavedRun>, sort: RunSort, modifier: Modifier = 
             }
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                sortedRuns.forEach { run -> SavedRunCard(run, sort) }
+                sortedRuns.forEachIndexed { index, run ->
+                    SavedRunCard(run, sort, runSidebarColors[index % runSidebarColors.size])
+                }
             }
         }
     }
 }
 
-private enum class RunMetricType { SCORE, AVERAGE, LEVEL, PACE }
+private enum class RunMetricType { AVERAGE, LEVEL, PACE }
+
+private val runSidebarColors = listOf(
+    ArcadeColors.CyanPrimary,
+    Color(0xFFB000FF),
+    ArcadeColors.GreenAccent,
+    ArcadeColors.RedAccent,
+    ArcadeColors.GoldAccent,
+    Color.White,
+    Color(0xFFFF9800)
+)
 
 private fun metricOrder(sort: RunSort): List<RunMetricType> {
     val defaultOrder = listOf(
-        RunMetricType.SCORE,
+        RunMetricType.PACE,
         RunMetricType.AVERAGE,
-        RunMetricType.LEVEL,
-        RunMetricType.PACE
+        RunMetricType.LEVEL
     )
     val sortedMetric = when (sort) {
-        RunSort.SCORE -> RunMetricType.SCORE
+        RunSort.AVERAGE -> RunMetricType.AVERAGE
         RunSort.LEVEL -> RunMetricType.LEVEL
         RunSort.PACE -> RunMetricType.PACE
-        RunSort.DATE, RunSort.NAME -> null
+        RunSort.DATE, RunSort.NAME, RunSort.SCORE -> null
     }
     return sortedMetric?.let { metric -> listOf(metric) + defaultOrder.filterNot { it == metric } }
         ?: defaultOrder
 }
 
 @Composable
-private fun SavedRunCard(run: SavedRun, sort: RunSort) {
+private fun SavedRunCard(run: SavedRun, sort: RunSort, sidebarColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(ArcadeColors.CardBackground, RoundedCornerShape(12.dp))
             .border(1.dp, ArcadeColors.CyanBorder.copy(alpha = 0.7f), RoundedCornerShape(12.dp))
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .drawBehind {
+                val sidebarWidth = 5.dp.toPx()
+                val verticalInset = 10.dp.toPx()
+                val horizontalInset = 4.dp.toPx()
+                drawRoundRect(
+                    color = sidebarColor,
+                    topLeft = Offset(horizontalInset, verticalInset),
+                    size = Size(sidebarWidth, (size.height - verticalInset * 2).coerceAtLeast(0f)),
+                    cornerRadius = CornerRadius(sidebarWidth / 2f, sidebarWidth / 2f)
+                )
+            }
+            .padding(start = 18.dp, end = 12.dp, top = 10.dp, bottom = 10.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = run.name.ifBlank { "Run" },
-                    modifier = Modifier.weight(1f, fill = false),
                     color = Color.White,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.CalendarMonth,
+                        contentDescription = null,
+                        tint = ArcadeColors.TextSecondary,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(Modifier.width(3.dp))
+                    Text(run.date.toDisplayDate(), color = ArcadeColors.TextMuted, fontSize = 9.sp, maxLines = 1)
+                }
             }
-            Spacer(Modifier.width(8.dp))
-            Icon(
-                imageVector = Icons.Default.CalendarMonth,
-                contentDescription = null,
-                tint = ArcadeColors.TextSecondary,
-                modifier = Modifier.size(13.dp)
+            RunMetric(
+                "SCORE", run.score.ifBlank { "---" }, Icons.Default.Star,
+                Color(0xFFB000FF), Modifier.width(115.dp), labelColor = Color(0xFFB000FF)
             )
-            Spacer(Modifier.width(3.dp))
-            Text(run.date.toDisplayDate(), color = ArcadeColors.TextMuted, fontSize = 9.sp, maxLines = 1)
         }
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             metricOrder(sort).forEach { metric ->
                 when (metric) {
-                    RunMetricType.SCORE -> RunMetric(
-                        "SCORE", run.score.ifBlank { "---" }, Icons.Default.Star,
-                        Color(0xFFB000FF), Modifier.weight(1f)
-                    )
                     RunMetricType.AVERAGE -> RunMetric(
                         "AVERAGE", run.average, Icons.Default.Balance,
                         if (run.averageIsRed) ArcadeColors.RedAccent else ArcadeColors.GreenAccent,
-                        Modifier.weight(1f)
+                        Modifier.weight(1.05f)
                     )
                     RunMetricType.LEVEL -> RunMetric(
                         "LEVEL", run.level?.let { String.format(Locale.ROOT, "L = %02d", it) } ?: "---",
-                        Icons.Default.Adjust, ArcadeColors.CyanPrimary, Modifier.weight(1f)
+                        Icons.Default.Adjust, ArcadeColors.CyanPrimary, Modifier.weight(0.9f)
                     )
                     RunMetricType.PACE -> RunMetric(
                         "PACE", run.pace, Icons.Default.EmojiEvents,
-                        Color.White, Modifier.weight(1f)
+                        Color.White, Modifier.weight(1.05f)
                     )
                 }
             }
@@ -234,18 +298,34 @@ private fun SavedRunCard(run: SavedRun, sort: RunSort) {
 }
 
 @Composable
-private fun RunMetric(label: String, value: String, icon: ImageVector, color: Color, modifier: Modifier) {
-    Column(
+private fun RunMetric(
+    label: String,
+    value: String,
+    icon: ImageVector,
+    color: Color,
+    modifier: Modifier,
+    labelColor: Color = color
+) {
+    Row(
         modifier = modifier
             .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(9.dp))
             .border(1.dp, color, RoundedCornerShape(9.dp))
-            .padding(horizontal = 6.dp, vertical = 5.dp)
+            .padding(horizontal = 4.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(11.dp))
-            Text(label, color = color, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-        }
-        Text(value, color = color, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(13.dp))
+        Text(label, color = labelColor, fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        Text(
+            value,
+            modifier = Modifier.weight(1f),
+            color = color,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.ExtraBold,
+            maxLines = 1,
+            textAlign = TextAlign.End,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
