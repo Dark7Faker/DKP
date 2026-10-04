@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.PaddingValues
@@ -60,7 +59,10 @@ data class SavedRun(
     val level: Int?,
     val average: String,
     val savedAt: Long = 0L,
-    val averageIsRed: Boolean = false
+    val averageIsRed: Boolean = false,
+    val neededAverage: String = "---",
+    val goal: String = "",
+    val levelMetrics: Map<Int, LevelMetrics> = emptyMap()
 )
 
 enum class RunSort(val label: String, val icon: ImageVector) {
@@ -161,7 +163,12 @@ fun RunSortControl(
 }
 
 @Composable
-fun AnalyzeRunsScreen(runs: List<SavedRun>, sort: RunSort, modifier: Modifier = Modifier) {
+fun AnalyzeRunsScreen(
+    runs: List<SavedRun>,
+    sort: RunSort,
+    onRunClick: (SavedRun) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val sortedRuns = when (sort) {
         RunSort.NAME -> runs.sortedByDescending { it.name.lowercase(Locale.ROOT) }
         RunSort.SCORE -> runs.sortedByDescending { it.score.toSortNumber() }
@@ -189,7 +196,9 @@ fun AnalyzeRunsScreen(runs: List<SavedRun>, sort: RunSort, modifier: Modifier = 
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
                 sortedRuns.forEachIndexed { index, run ->
-                    SavedRunCard(run, sort, runSidebarColors[index % runSidebarColors.size])
+                    SavedRunCard(run, sort, runSidebarColors[index % runSidebarColors.size]) {
+                        onRunClick(run)
+                    }
                 }
             }
         }
@@ -225,7 +234,7 @@ private fun metricOrder(sort: RunSort): List<RunMetricType> {
 }
 
 @Composable
-private fun SavedRunCard(run: SavedRun, sort: RunSort, sidebarColor: Color) {
+private fun SavedRunCard(run: SavedRun, sort: RunSort, sidebarColor: Color, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -242,6 +251,8 @@ private fun SavedRunCard(run: SavedRun, sort: RunSort, sidebarColor: Color) {
                     cornerRadius = CornerRadius(sidebarWidth / 2f, sidebarWidth / 2f)
                 )
             }
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
             .padding(start = 18.dp, end = 12.dp, top = 10.dp, bottom = 10.dp)
     ) {
         Row(

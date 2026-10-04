@@ -42,7 +42,10 @@ fun CurrentRunCard(
     neededAverage: String,
     nextLevelNeededAverage: String,
     pointsInThisLevel: String,
-    progressColor: Color
+    progressColor: Color,
+    title: String = "LEVEL STATISTICS",
+    showPointsThisLevel: Boolean = true,
+    showNextLevelMetrics: Boolean = true
 ) {
     Box(
         modifier = modifier
@@ -74,7 +77,7 @@ fun CurrentRunCard(
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(
-                        text = "LEVEL STATISTICS",
+                        text = title,
                         color = ArcadeColors.CyanPrimary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
@@ -103,21 +106,23 @@ fun CurrentRunCard(
 
             GridDivider()
 
-            CenteredMetricRow(
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Bookmark,
-                        contentDescription = null,
-                        tint = ArcadeColors.CyanPrimary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                label = "POINTS THIS LEVEL",
-                value = pointsInThisLevel,
-                valueColor = ArcadeColors.TextWhite
-            )
+            if (showPointsThisLevel) {
+                CenteredMetricRow(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Bookmark,
+                            contentDescription = null,
+                            tint = ArcadeColors.CyanPrimary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    label = "POINTS THIS LEVEL",
+                    value = pointsInThisLevel,
+                    valueColor = ArcadeColors.TextWhite
+                )
 
-            GridDivider()
+                GridDivider()
+            }
 
             // Row 2: CURRENT AVERAGE | NEEDED AVERAGE
             GridRow(
@@ -146,10 +151,10 @@ fun CurrentRunCard(
                 rightValueColor = ArcadeColors.GoldAccent
             )
 
-            GridDivider()
+            if (showNextLevelMetrics) GridDivider()
 
             // Row 3: NEXT LEVEL - CURRENT | NEXT LEVEL - NEEDED
-            GridRow(
+            if (showNextLevelMetrics) GridRow(
                 leftIcon = {
                     Icon(
                         imageVector = Icons.Default.DoubleArrow,

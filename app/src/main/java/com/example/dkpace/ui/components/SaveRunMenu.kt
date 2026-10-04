@@ -72,12 +72,14 @@ fun SaveRunMenu(
     averageColor: Color,
     onDismiss: () -> Unit,
     onSave: (score: String, date: LocalDate) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    title: String = "SAVE RUN",
+    initialDate: LocalDate = LocalDate.now(ZoneId.systemDefault())
 ) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
-    var selectedDate by remember {
-        mutableStateOf(LocalDate.now(ZoneId.systemDefault()))
+    var selectedDate by remember(initialDate) {
+        mutableStateOf(initialDate)
     }
     var editedScore by remember(score) { mutableStateOf(score) }
     Box(
@@ -100,7 +102,7 @@ fun SaveRunMenu(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "SAVE RUN",
+                    text = title.uppercase(Locale.ROOT),
                     color = ArcadeColors.CyanPrimary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
@@ -281,8 +283,8 @@ private fun SaveRunNameInput(
                 onValueChange = { input ->
                     val capitalized = input.replaceFirstChar { it.uppercase() }
                     val length = capitalized.codePointCount(0, capitalized.length)
-                    val capped = if (length > 25) {
-                        capitalized.substring(0, capitalized.offsetByCodePoints(0, 25))
+                    val capped = if (length > 20) {
+                        capitalized.substring(0, capitalized.offsetByCodePoints(0, 20))
                     } else {
                         capitalized
                     }
