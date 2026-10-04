@@ -62,7 +62,8 @@ data class SavedRun(
     val averageIsRed: Boolean = false,
     val neededAverage: String = "---",
     val goal: String = "",
-    val levelMetrics: Map<Int, LevelMetrics> = emptyMap()
+    val levelMetrics: Map<Int, LevelMetrics> = emptyMap(),
+    val levelIsEndLevel: Boolean = false
 )
 
 enum class RunSort(val label: String, val icon: ImageVector) {

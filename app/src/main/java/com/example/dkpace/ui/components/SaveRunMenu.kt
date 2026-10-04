@@ -74,7 +74,8 @@ fun SaveRunMenu(
     onSave: (score: String, date: LocalDate) -> Unit,
     modifier: Modifier = Modifier,
     title: String = "SAVE RUN",
-    initialDate: LocalDate = LocalDate.now(ZoneId.systemDefault())
+    initialDate: LocalDate = LocalDate.now(ZoneId.systemDefault()),
+    onEditRunStatistics: ((score: String, date: LocalDate) -> Unit)? = null
 ) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -200,6 +201,21 @@ fun SaveRunMenu(
             }
 
             Spacer(Modifier.height(14.dp))
+
+            if (onEditRunStatistics != null) {
+                SaveRunActionButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "EDIT RUN STATISTICS",
+                    icon = Icons.Default.Edit,
+                    color = ArcadeColors.CyanPrimary,
+                    outlined = true,
+                    onClick = {
+                        focusManager.clearFocus()
+                        onEditRunStatistics(editedScore, selectedDate)
+                    }
+                )
+                Spacer(Modifier.height(14.dp))
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

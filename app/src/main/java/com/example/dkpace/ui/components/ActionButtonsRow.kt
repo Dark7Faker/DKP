@@ -31,7 +31,9 @@ import com.example.dkpace.ui.theme.ArcadeColors
 fun ActionButtonsColumn(
     modifier: Modifier = Modifier,
     onResetRun: () -> Unit = {},
-    onSaveRun: () -> Unit = {}
+    onSaveRun: () -> Unit = {},
+    resetLabel: String = "RESET",
+    resetIcon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.Refresh
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -92,14 +94,14 @@ fun ActionButtonsColumn(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Refresh,
+                    imageVector = resetIcon,
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = "RESET",
+                    text = resetLabel,
                     color = ArcadeColors.TextWhite,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,

@@ -29,9 +29,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Battery2Bar
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -97,6 +99,9 @@ fun ArcadeTrackerScreen() {
     var saveRunMenuVisible by remember { mutableStateOf(false) }
     var editingRunIndex by remember { mutableIntStateOf(-1) }
     var editingRunName by remember { mutableStateOf("") }
+    var editingRunStatistics by remember { mutableStateOf(false) }
+    var editingRunDraftScore by remember { mutableStateOf("") }
+    var editingRunDraftDate by remember { mutableStateOf<LocalDate?>(null) }
     var selectedMenu by remember { mutableStateOf(MainMenu.TRACKER) }
     var selectedRun by remember { mutableStateOf<SavedRun?>(null) }
     var runSort by remember { mutableStateOf(RunSort.DATE) }
@@ -138,7 +143,8 @@ fun ArcadeTrackerScreen() {
         mutableStateOf(preferences.getString("goal", "").orEmpty())
     }
     var saveRunName by remember { mutableStateOf("") }
-    LaunchedEffect(goal) {
+    LaunchedEffect(goal, editingRunStatistics) {
+        if (editingRunStatistics) return@LaunchedEffect
         val roundedGoal = goal.toMetricLong()
         if (roundedGoal > 0L) {
             preferences.edit().putString("goal", roundedGoal.formatMetric()).apply()
@@ -147,6 +153,25 @@ fun ArcadeTrackerScreen() {
         }
     }
     val metricsByLevel = remember { mutableStateMapOf<Int, LevelMetrics>() }
+    var trackerMetricsBeforeRunEdit by remember { mutableStateOf<Map<Int, LevelMetrics>?>(null) }
+    var trackerGoalBeforeRunEdit by remember { mutableStateOf<String?>(null) }
+    var trackerLevelBeforeRunEdit by remember { mutableIntStateOf(4) }
+
+    fun returnFromRunStatisticsEdit() {
+        metricsByLevel.clear()
+        trackerMetricsBeforeRunEdit.orEmpty().forEach { (level, metrics) ->
+            metricsByLevel[level] = metrics
+        }
+        goal = trackerGoalBeforeRunEdit.orEmpty()
+        currentLevel = trackerLevelBeforeRunEdit
+        inputFieldFocused = false
+        editingRunStatistics = false
+        editingRunIndex = -1
+        editingRunDraftDate = null
+        saveRunMenuVisible = false
+        selectedMenu = MainMenu.ANALYZE
+        focusManager.clearFocus()
+    }
 
 
     val currentMetrics = metricsByLevel[currentLevel] ?: LevelMetrics()
@@ -173,6 +198,7 @@ fun ArcadeTrackerScreen() {
         .filter { (_, metrics) -> metrics.score.isNotBlank() && metrics.score.toMetricLong() >= 0L }
         .keys
         .maxOrNull()
+    val saveRunEndLevel = latestScoredLevel?.plus(1)
     val latestScoredMetrics = latestScoredLevel?.let { metricsByLevel[it] }
     val startScore = startingMetrics.score
         .takeIf { it.isNotBlank() && it.toMetricLong() >= 0L }
@@ -348,7 +374,10 @@ fun ArcadeTrackerScreen() {
                 val runDetails = selectedRun
                 if (runDetails != null) {
                     var runLevel by remember(runDetails.savedAt, runDetails.name) {
-                        mutableIntStateOf(runDetails.level ?: 4)
+                        val initialLevel = runDetails.level?.let {
+                            if (runDetails.levelIsEndLevel) it - 1 else it
+                        } ?: 4
+                        mutableIntStateOf(initialLevel.coerceAtLeast(4))
                     }
                     val runMetrics = runDetails.levelMetrics
                     val runCurrentMetrics = runMetrics[runLevel] ?: LevelMetrics()
@@ -443,6 +472,8 @@ fun ArcadeTrackerScreen() {
                                 onClick = {
                                     editingRunIndex = savedRuns.indexOf(runDetails)
                                     editingRunName = runDetails.name
+                                    editingRunDraftScore = runDetails.score
+                                    editingRunDraftDate = runCatching { LocalDate.parse(runDetails.date) }.getOrNull()
                                 }
                             )
                         }
@@ -493,10 +524,14 @@ fun ArcadeTrackerScreen() {
                 }
             } else {
             // 1. Top Header
-            HeaderSection(onBatterySaverClick = {
-                focusManager.clearFocus()
-                batterySaverEnabled = true
-            })
+            HeaderSection(
+                title = if (editingRunStatistics) "DK PACE TRACKER - EDIT" else "DK PACE TRACKER",
+                showBatterySaver = !editingRunStatistics,
+                onBatterySaverClick = {
+                    focusManager.clearFocus()
+                    batterySaverEnabled = true
+                }
+            )
 
             // 2. Goal block beside the vertically stacked action buttons
             Row(
@@ -515,13 +550,45 @@ fun ArcadeTrackerScreen() {
                     modifier = Modifier.weight(1f),
                     onResetRun = {
                         focusManager.clearFocus()
-                        metricsByLevel.clear()
-                        currentLevel = 4
+                        if (editingRunStatistics) {
+                            returnFromRunStatisticsEdit()
+                        } else {
+                            metricsByLevel.clear()
+                            currentLevel = 4
+                        }
                     },
                     onSaveRun = {
                         focusManager.clearFocus()
-                        saveRunMenuVisible = true
-                    }
+                        if (editingRunStatistics) {
+                            val editedRun = savedRuns.getOrNull(editingRunIndex)
+                            if (editedRun != null) {
+                                val updatedRun = editedRun.copy(
+                                    name = editingRunName.trim().ifBlank { editingRunDraftScore },
+                                    score = editingRunDraftScore,
+                                    date = editingRunDraftDate?.toString() ?: editedRun.date,
+                                    pace = saveRunPace,
+                                    level = saveRunEndLevel,
+                                    average = saveRunAverage,
+                                    averageIsRed = saveRunProgressColor == ArcadeColors.RedAccent,
+                                    neededAverage = saveRunNeededAverage,
+                                    goal = goal,
+                                    levelMetrics = metricsByLevel.toMap(),
+                                    levelIsEndLevel = true
+                                )
+                                val updatedRuns = savedRuns.mapIndexed { index, run ->
+                                    if (index == editingRunIndex) updatedRun else run
+                                }
+                                savedRuns = updatedRuns
+                                selectedRun = updatedRun
+                                preferences.edit().putString("saved_runs", saveRunsJson(updatedRuns)).apply()
+                            }
+                            returnFromRunStatisticsEdit()
+                        } else {
+                            saveRunMenuVisible = true
+                        }
+                    },
+                    resetLabel = if (editingRunStatistics) "CANCEL" else "RESET",
+                    resetIcon = if (editingRunStatistics) Icons.Default.Close else Icons.Default.Refresh
                 )
             }
 
@@ -584,7 +651,7 @@ fun ArcadeTrackerScreen() {
         )
 
         val editingRun = savedRuns.getOrNull(editingRunIndex)
-        if (saveRunMenuVisible || editingRun != null) {
+        if ((saveRunMenuVisible || editingRun != null) && !editingRunStatistics) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -604,8 +671,8 @@ fun ArcadeTrackerScreen() {
                         editingRun.levelMetrics[4]?.score?.takeIf { it.isNotBlank() }
                             ?.let { it.toMetricLong().formatMetric() } ?: "---"
                     } else startScore,
-                    score = editingRun?.score ?: saveRunScore,
-                    level = if (editingRun != null) editingRun.level else latestScoredLevel,
+                    score = if (editingRun != null) editingRunDraftScore else saveRunScore,
+                    level = if (editingRun != null) editingRun.level else saveRunEndLevel,
                     pace = editingRun?.pace ?: saveRunPace,
                     average = editingRun?.average ?: saveRunAverage,
                     averageColor = if (editingRun != null && editingRun.averageIsRed) {
@@ -616,6 +683,7 @@ fun ArcadeTrackerScreen() {
                     onDismiss = {
                         saveRunMenuVisible = false
                         editingRunIndex = -1
+                        editingRunDraftDate = null
                     },
                     onSave = { enteredScore, date ->
                         if (editingRun != null) {
@@ -629,29 +697,54 @@ fun ArcadeTrackerScreen() {
                             }
                             selectedRun = updatedRun
                             editingRunIndex = -1
+                            editingRunDraftDate = null
                         } else {
                             val run = SavedRun(
                                 name = saveRunName.trim().ifBlank { enteredScore },
                                 score = enteredScore,
                                 date = date.toString(),
                                 pace = saveRunPace,
-                                level = latestScoredLevel,
+                                level = saveRunEndLevel,
                                 average = saveRunAverage,
                                 savedAt = System.currentTimeMillis(),
                                 averageIsRed = saveRunProgressColor == ArcadeColors.RedAccent,
                                 neededAverage = saveRunNeededAverage,
                                 goal = goal,
-                                levelMetrics = metricsByLevel.toMap()
+                                levelMetrics = metricsByLevel.toMap(),
+                                levelIsEndLevel = true
                             )
                             savedRuns = savedRuns + run
                             saveRunMenuVisible = false
+                            metricsByLevel.clear()
+                            currentLevel = 4
                         }
                         preferences.edit().putString("saved_runs", saveRunsJson(savedRuns)).apply()
                     },
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 16.dp),
                     title = if (editingRun != null) "EDIT RUN" else "SAVE RUN",
-                    initialDate = editingRun?.date?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
+                    initialDate = if (editingRun != null) {
+                        editingRunDraftDate ?: runCatching { LocalDate.parse(editingRun.date) }.getOrNull()
                         ?: LocalDate.now()
+                    } else LocalDate.now(),
+                    onEditRunStatistics = if (editingRun != null) { draftScore, draftDate ->
+                        editingRunDraftScore = draftScore
+                        editingRunDraftDate = draftDate
+                        trackerMetricsBeforeRunEdit = metricsByLevel.toMap()
+                        trackerGoalBeforeRunEdit = goal
+                        trackerLevelBeforeRunEdit = currentLevel
+                        editingRunStatistics = true
+                        focusManager.clearFocus()
+                        metricsByLevel.clear()
+                        metricsByLevel.putAll(editingRun.levelMetrics)
+                        goal = editingRun.goal
+                        val initialRunLevel = editingRun.level?.let {
+                            if (editingRun.levelIsEndLevel) it - 1 else it
+                        } ?: 4
+                        currentLevel = initialRunLevel.coerceIn(4, 21)
+                        inputFieldFocused = false
+                        selectedMenu = MainMenu.TRACKER
+                        saveRunMenuVisible = false
+                    } else null
                 )
             }
         }
@@ -752,7 +845,8 @@ private fun loadSavedRuns(json: String?): List<SavedRun> = runCatching {
                         )
                     }
                 }
-            }.orEmpty()
+            }.orEmpty(),
+            levelIsEndLevel = item.optBoolean("levelIsEndLevel", false)
         )
     }
 }.getOrDefault(emptyList())
@@ -770,6 +864,7 @@ private fun saveRunsJson(runs: List<SavedRun>): String = JSONArray().apply {
             put("averageIsRed", run.averageIsRed)
             put("neededAverage", run.neededAverage)
             put("goal", run.goal)
+            put("levelIsEndLevel", run.levelIsEndLevel)
             put("levelMetrics", JSONArray().apply {
                 run.levelMetrics.toSortedMap().forEach { (level, metrics) ->
                     put(JSONObject().apply {
