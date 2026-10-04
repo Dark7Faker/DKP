@@ -287,7 +287,7 @@ fun ArcadeTrackerScreen() {
         pointsAfterDeath.toDouble() / (currentLevel - 4)
     }
     val currentAverage = averageForLevel?.takeIf { it > 4 }?.roundToLong()
-    val nextLevelCurrentAverage = averageForLevel?.takeIf { it > 4 }?.let { average ->
+    val nextLevelCurrentAverage = averageForLevel?.takeIf { currentLevel < 21 && it > 4 }?.let { average ->
         val nextAverage = currentMetrics.score.toMetricLong() +
             currentMetrics.bonus.toMetricLong() + average
         nextAverage.takeIf { it >= 0 }?.roundToLong()
@@ -409,7 +409,7 @@ fun ArcadeTrackerScreen() {
                             runStart - runCurrentMetrics.death.toMetricLong()).toDouble() / (runLevel - 4)
                     }
                     val runAverage = runAverageValue?.takeIf { it > 4 }?.roundToLong()
-                    val runNextCurrent = runAverageValue?.takeIf { it > 4 }?.let { average ->
+                    val runNextCurrent = runAverageValue?.takeIf { runLevel < 21 && it > 4 }?.let { average ->
                         (runCurrentMetrics.score.toMetricLong() + runCurrentMetrics.bonus.toMetricLong() + average)
                             .takeIf { it >= 0 }?.roundToLong()
                     }
