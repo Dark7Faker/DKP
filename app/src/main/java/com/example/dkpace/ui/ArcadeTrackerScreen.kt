@@ -201,7 +201,8 @@ fun ArcadeTrackerScreen() {
         val total = metrics.score.toMetricLong() +
             metrics.bonus.toMetricLong() -
             metrics.death.toMetricLong()
-        val levelPace = ((total - start).toDouble() / (level - 4)) * 17 + 700 + start
+        val levelPace = ((total - start).toDouble() / (level - 4)) * (21 - level) +
+            metrics.score.toMetricLong() + metrics.bonus.toMetricLong() + 700
         if (levelPace < 0) return@mapNotNull null
 
         PacePoint(
@@ -272,7 +273,8 @@ fun ArcadeTrackerScreen() {
         val currentTotal = currentMetrics.score.toMetricLong() +
             currentMetrics.bonus.toMetricLong() -
             currentMetrics.death.toMetricLong()
-        val calculatedPace = ((currentTotal - start).toDouble() / (currentLevel - 4)) * 17 + 700 + start
+        val calculatedPace = ((currentTotal - start).toDouble() / (currentLevel - 4)) *
+            (21 - currentLevel) + currentMetrics.score.toMetricLong() + currentMetrics.bonus.toMetricLong() + 700
         calculatedPace.takeIf { it >= 0 }?.roundToLong()
     }
     val averageForLevel = if (currentLevel == 4 || currentMetrics.score.isBlank()) {
@@ -398,7 +400,8 @@ fun ArcadeTrackerScreen() {
                     val runPaceValue = if (runLevel == 4 || !runScoreExists) null else {
                         val net = runCurrentMetrics.score.toMetricLong() + runCurrentMetrics.bonus.toMetricLong() -
                             runCurrentMetrics.death.toMetricLong()
-                        (((net - runStart).toDouble() / (runLevel - 4)) * 17 + 700 + runStart)
+                        (((net - runStart).toDouble() / (runLevel - 4)) * (21 - runLevel) +
+                            runCurrentMetrics.score.toMetricLong() + runCurrentMetrics.bonus.toMetricLong() + 700)
                             .takeIf { it >= 0 }?.roundToLong()
                     }
                     val runAverageValue = if (runLevel == 4 || !runScoreExists) null else {
@@ -815,7 +818,8 @@ private fun paceHistoryFor(metricsByLevel: Map<Int, LevelMetrics>): List<PacePoi
         val metrics = metricsByLevel[level] ?: return@mapNotNull null
         if (metrics.score.isBlank()) return@mapNotNull null
         val net = metrics.score.toMetricLong() + metrics.bonus.toMetricLong() - metrics.death.toMetricLong()
-        val pace = ((net - start).toDouble() / (level - 4)) * 17 + 700 + start
+        val pace = ((net - start).toDouble() / (level - 4)) * (21 - level) +
+            metrics.score.toMetricLong() + metrics.bonus.toMetricLong() + 700
         if (pace < 0) return@mapNotNull null
         PacePoint(
             level = level,
