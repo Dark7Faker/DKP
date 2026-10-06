@@ -94,7 +94,7 @@ fun PersonalBestChart(
                     modifier = Modifier.size(20.dp)
                 )
                 Text(
-                    text = "SCORE OVER TIME",
+                    text = "PB OVER TIME",
                     color = ArcadeColors.CyanPrimary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
