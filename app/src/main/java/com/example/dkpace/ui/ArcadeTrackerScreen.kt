@@ -7,6 +7,7 @@ import android.content.ContextWrapper
 import android.view.ContextThemeWrapper
 import android.view.WindowManager
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -62,7 +63,6 @@ import com.example.dkpace.ui.components.MetricCardsRow
 import com.example.dkpace.ui.components.RunLevelMetricsRow
 import com.example.dkpace.ui.components.GoalMetricCard
 import com.example.dkpace.ui.components.LevelMetrics
-import com.example.dkpace.ui.components.MainNavigationBar
 import com.example.dkpace.ui.components.MainMenu
 import com.example.dkpace.ui.components.AnalyzeRunsScreen
 import com.example.dkpace.ui.components.RunSort
@@ -77,6 +77,7 @@ import com.example.dkpace.ui.components.SaveRunMenu
 import com.example.dkpace.ui.theme.ArcadeColors
 import com.example.dkpace.R
 import kotlin.math.roundToLong
+import kotlin.math.abs
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
@@ -388,6 +389,27 @@ fun ArcadeTrackerScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .pointerInput(selectedMenu, selectedRun, showingPersonalBests, saveRunMenuVisible, editingRunStatistics) {
+                    var totalHorizontalDrag = 0f
+                    detectHorizontalDragGestures(
+                        onDragStart = { totalHorizontalDrag = 0f },
+                        onHorizontalDrag = { _, dragAmount ->
+                            totalHorizontalDrag += dragAmount
+                        },
+                        onDragEnd = {
+                            val swipeThreshold = 72.dp.toPx()
+                            if (!saveRunMenuVisible && !editingRunStatistics &&
+                                abs(totalHorizontalDrag) >= swipeThreshold
+                            ) {
+                                focusManager.clearFocus()
+                                selectedMenu = if (totalHorizontalDrag > 0f) MainMenu.ANALYZE else MainMenu.TRACKER
+                                selectedRun = null
+                                showingPersonalBests = false
+                                selectedPersonalBestRun = null
+                            }
+                        }
+                    )
+                }
                 .pointerInput(currentLevel, selectedMenu) {
                     detectTapGestures(
                         onTap = { tap ->
@@ -749,7 +771,7 @@ fun ArcadeTrackerScreen() {
                                         Icon(
                                             imageVector = Icons.Default.EmojiEvents,
                                             contentDescription = "PB Improvement",
-                                            tint = ArcadeColors.CyanPrimary,
+                                            tint = ArcadeColors.TextWhite,
                                             modifier = Modifier.size(20.dp)
                                         )
                                     }
@@ -887,17 +909,6 @@ fun ArcadeTrackerScreen() {
             }
         }
         }
-
-        MainNavigationBar(
-            selectedMenu = selectedMenu,
-            onMenuSelected = {
-                selectedMenu = it
-                selectedRun = null
-                showingPersonalBests = false
-                selectedPersonalBestRun = null
-            },
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
 
         if (saveRunMenuVisible && !editingRunStatistics) {
             Box(
