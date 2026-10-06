@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -69,6 +70,8 @@ import com.example.dkpace.ui.components.RunSortControl
 import com.example.dkpace.ui.components.SavedRun
 import com.example.dkpace.ui.components.PaceChartCard
 import com.example.dkpace.ui.components.PacePoint
+import com.example.dkpace.ui.components.PersonalBestChart
+import com.example.dkpace.ui.components.PersonalBestPoint
 import com.example.dkpace.ui.components.SaveRunDisplayCard
 import com.example.dkpace.ui.components.SaveRunMenu
 import com.example.dkpace.ui.theme.ArcadeColors
@@ -122,6 +125,8 @@ fun ArcadeTrackerScreen() {
     var editingRunDraftDate by remember { mutableStateOf<LocalDate?>(null) }
     var selectedMenu by remember { mutableStateOf(MainMenu.TRACKER) }
     var selectedRun by remember { mutableStateOf<SavedRun?>(null) }
+    var showingPersonalBests by remember { mutableStateOf(false) }
+    var selectedPersonalBestRun by remember { mutableStateOf<SavedRun?>(null) }
     var runSort by remember { mutableStateOf(RunSort.DATE) }
     var savedRuns by remember {
         mutableStateOf(loadSavedRuns(preferences.getString("saved_runs", null)))
@@ -583,6 +588,7 @@ fun ArcadeTrackerScreen() {
                                     preferences.edit { putString("saved_runs", saveRunsJson(updatedRuns)) }
                                 }
                                 selectedRun = null
+                                selectedPersonalBestRun = null
                             }
                         )
                     }
@@ -657,13 +663,99 @@ fun ArcadeTrackerScreen() {
                         },
                         title = "LEVEL STATISTICS"
                     )
+                } else if (showingPersonalBests) {
+                    val personalBestPoints = remember(savedRuns) {
+                        var highestScore = -1L
+                        savedRuns.mapNotNull { run ->
+                            val score = run.score.toMetricLong()
+                            val date = runCatching { LocalDate.parse(run.date) }.getOrNull()
+                            if (date == null || score < 0L) null else Triple(run, date, score)
+                        }
+                            .sortedWith(compareBy<Triple<SavedRun, LocalDate, Long>> { it.second }
+                                .thenBy { it.first.savedAt })
+                            .mapNotNull { (run, date, score) ->
+                                if (score <= highestScore) return@mapNotNull null
+                                highestScore = score
+                                PersonalBestPoint(
+                                    dateEpochDay = date.toEpochDay(),
+                                    score = score,
+                                    run = run
+                                )
+                            }
+                    }
+                    HeaderSection(
+                        title = "PB IMPROVEMENT",
+                        titleIcon = Icons.Default.EmojiEvents,
+                        showBatterySaver = false,
+                        trailingContent = {
+                            Box(
+                                modifier = Modifier
+                                    .background(ArcadeColors.CardBackground, RoundedCornerShape(12.dp))
+                                    .border(1.dp, ArcadeColors.CyanBorder, RoundedCornerShape(12.dp))
+                                    .height(35.dp)
+                                    .padding(2.dp)
+                            ) {
+                                IconButton(onClick = {
+                                    focusManager.clearFocus()
+                                    showingPersonalBests = false
+                                    selectedPersonalBestRun = null
+                                }, modifier = Modifier.size(32.dp)) {
+                                    Icon(
+                                        imageVector = Icons.Default.Home,
+                                        contentDescription = "Back to Analyze Runs",
+                                        tint = ArcadeColors.TextWhite,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+                    )
+                    PersonalBestChart(
+                        points = personalBestPoints,
+                        selectedRun = selectedPersonalBestRun,
+                        onPointSelected = { selectedPersonalBestRun = it }
+                    )
+                    selectedPersonalBestRun?.let { run ->
+                        AnalyzeRunsScreen(
+                            runs = listOf(run),
+                            sort = runSort,
+                            onRunClick = { selectedRun = it }
+                        )
+                    }
                 } else {
                     HeaderSection(
                         title = "ANALYZE RUNS",
                         titleIcon = Icons.Default.Visibility,
                         showBatterySaver = false,
                         trailingContent = {
-                            RunSortControl(sort = runSort, onSortSelected = { runSort = it })
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(ArcadeColors.CardBackground, RoundedCornerShape(12.dp))
+                                        .border(1.dp, ArcadeColors.CyanBorder, RoundedCornerShape(12.dp))
+                                        .padding(2.dp)
+                                ) {
+                                    IconButton(
+                                        onClick = {
+                                            focusManager.clearFocus()
+                                            showingPersonalBests = true
+                                            selectedPersonalBestRun = null
+                                        },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.EmojiEvents,
+                                            contentDescription = "PB Improvement",
+                                            tint = ArcadeColors.CyanPrimary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
+                                RunSortControl(sort = runSort, onSortSelected = { runSort = it })
+                            }
                         },
                         onBatterySaverClick = {
                             focusManager.clearFocus()
@@ -801,6 +893,8 @@ fun ArcadeTrackerScreen() {
             onMenuSelected = {
                 selectedMenu = it
                 selectedRun = null
+                showingPersonalBests = false
+                selectedPersonalBestRun = null
             },
             modifier = Modifier.align(Alignment.BottomCenter)
         )
