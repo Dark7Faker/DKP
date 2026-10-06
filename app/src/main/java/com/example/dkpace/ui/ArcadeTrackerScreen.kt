@@ -290,7 +290,7 @@ fun ArcadeTrackerScreen() {
             latestScoredMetrics
                 ?.takeIf { it.score.isNotBlank() }
                 ?.let { metrics ->
-                    (goal.toMetricLong() - metrics.score.toMetricLong() - metrics.bonus.toMetricLong())
+                    (goal.toMetricLong() - metrics.score.toMetricLong() - metrics.bonus.toMetricLong() - 700L)
                         .toDouble() / (21 - level)
                 }
         }
@@ -334,7 +334,8 @@ fun ArcadeTrackerScreen() {
     } else {
         val remainingPoints = goal.toMetricLong() -
             currentMetrics.score.toMetricLong() -
-            currentMetrics.bonus.toMetricLong()
+            currentMetrics.bonus.toMetricLong() -
+            700L
         remainingPoints.toDouble() / (21 - currentLevel)
     }
     val neededAverage = neededAverageValue?.takeIf { it > 0 }?.roundToLong()
@@ -533,7 +534,7 @@ fun ArcadeTrackerScreen() {
                     }
                     val runNeededValue = if (runDetails.goal.isBlank() || !runScoreExists || runLevel >= 21) null else {
                         (runDetails.goal.toMetricLong() - runCurrentMetrics.score.toMetricLong() -
-                            runCurrentMetrics.bonus.toMetricLong()).toDouble() / (21 - runLevel)
+                            runCurrentMetrics.bonus.toMetricLong() - 700L).toDouble() / (21 - runLevel)
                     }
                     val runNeeded = runNeededValue?.takeIf { it > 0 }?.roundToLong()
                     val runNextNeeded = runNeededValue?.takeIf { it > 0 }?.let { needed ->
