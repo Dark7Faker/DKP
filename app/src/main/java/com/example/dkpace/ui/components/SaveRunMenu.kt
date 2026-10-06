@@ -233,6 +233,7 @@ fun SaveRunMenu(
 
 @Composable
 fun SaveRunDisplayCard(
+    title: String = "SAVE RUN",
     runName: String,
     onRunNameChange: (String) -> Unit,
     date: String,
@@ -264,7 +265,7 @@ fun SaveRunDisplayCard(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "SAVE RUN",
+                    text = title,
                     color = ArcadeColors.CyanPrimary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,

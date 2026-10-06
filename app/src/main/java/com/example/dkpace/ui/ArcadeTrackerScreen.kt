@@ -525,8 +525,8 @@ fun ArcadeTrackerScreen() {
                     val displayedRunAverage = if (runMetrics.isEmpty()) runDetails.average else runAverage?.formatMetric() ?: "---"
                     val displayedRunNeeded = if (runMetrics.isEmpty()) runDetails.neededAverage else runNeeded?.formatMetric() ?: "---"
                     HeaderSection(
-                        title = runDetails.name,
-                        titleIcon = Icons.Default.Edit,
+                        title = "ANALYZE RUNS",
+                        titleIcon = Icons.Default.Visibility,
                         showBatterySaver = false,
                         trailingContent = {
                             Box(
@@ -587,6 +587,7 @@ fun ArcadeTrackerScreen() {
                         )
                     }
                     SaveRunDisplayCard(
+                        title = "RUN STATISTICS",
                         runName = runDetails.name,
                         onRunNameChange = { name ->
                             updateSelectedRun { it.copy(name = name) }
