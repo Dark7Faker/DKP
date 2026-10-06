@@ -74,8 +74,7 @@ fun SaveRunMenu(
     onSave: (score: String, date: LocalDate) -> Unit,
     modifier: Modifier = Modifier,
     title: String = "SAVE RUN",
-    initialDate: LocalDate = LocalDate.now(ZoneId.systemDefault()),
-    onEditRunStatistics: ((score: String, date: LocalDate) -> Unit)? = null
+    initialDate: LocalDate = LocalDate.now(ZoneId.systemDefault())
 ) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -202,21 +201,6 @@ fun SaveRunMenu(
 
             Spacer(Modifier.height(14.dp))
 
-            if (onEditRunStatistics != null) {
-                SaveRunActionButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = "EDIT RUN STATISTICS",
-                    icon = Icons.Default.Edit,
-                    color = ArcadeColors.CyanPrimary,
-                    outlined = true,
-                    onClick = {
-                        focusManager.clearFocus()
-                        onEditRunStatistics(editedScore, selectedDate)
-                    }
-                )
-                Spacer(Modifier.height(14.dp))
-            }
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -250,15 +234,19 @@ fun SaveRunMenu(
 @Composable
 fun SaveRunDisplayCard(
     runName: String,
+    onRunNameChange: (String) -> Unit,
     date: String,
+    onDateClick: () -> Unit,
     startScore: String,
     score: String,
+    onScoreChange: (String) -> Unit,
     level: Int?,
     pace: String,
     average: String,
     averageColor: Color,
     modifier: Modifier = Modifier
 ) {
+    val initialScore = remember { score }
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -288,41 +276,19 @@ fun SaveRunDisplayCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                SaveRunStaticInput(
+                SaveRunNameInput(
                     modifier = Modifier.weight(1.15f),
-                    label = "RUN NAME",
                     value = runName,
-                    icon = Icons.Default.Edit,
-                    tint = ArcadeColors.CyanPrimary
+                    onValueChange = onRunNameChange
                 )
-                SaveRunStaticInput(
+                SaveRunScoreInput(
                     modifier = Modifier.weight(0.85f),
-                    label = "SCORE",
-                    value = score,
-                    icon = Icons.Default.Star,
-                    tint = Color(0xFFB000FF)
+                    initialScore = initialScore,
+                    onScoreChange = onScoreChange
                 )
             }
             Spacer(Modifier.height(14.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(9.dp))
-                    .border(1.dp, ArcadeColors.BorderSubtle, RoundedCornerShape(9.dp))
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = null,
-                    tint = ArcadeColors.TextSecondary,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(Modifier.width(6.dp))
-                Text("DATE", color = ArcadeColors.TextSecondary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.weight(1f))
-                Text(date, color = ArcadeColors.TextWhite, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-            }
+            SaveRunDateItem(date = date, onClick = onDateClick)
             Spacer(Modifier.height(14.dp))
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                 val levelBlockWidth = (maxWidth + 18.dp) / 3.5f - 16.dp
@@ -373,42 +339,6 @@ fun SaveRunDisplayCard(
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun SaveRunStaticInput(
-    modifier: Modifier,
-    label: String,
-    value: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    tint: Color
-) {
-    Column(modifier = modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(15.dp))
-            Spacer(Modifier.width(4.dp))
-            Text(label, color = tint, fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-        }
-        Spacer(Modifier.height(6.dp))
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(44.dp)
-                .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(8.dp))
-                .border(1.dp, tint.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                .padding(horizontal = 10.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                text = value.ifBlank { "---" },
-                color = tint,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
         }
     }
 }

@@ -282,62 +282,6 @@ fun GoalMetricCard(
 }
 
 @Composable
-fun GoalDisplayCard(
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .height(88.dp)
-            .background(ArcadeColors.CardBackground, RoundedCornerShape(12.dp))
-            .border(1.dp, ArcadeColors.GoldAccent, RoundedCornerShape(12.dp))
-            .padding(horizontal = 6.dp, vertical = 6.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Flag,
-                    contentDescription = null,
-                    tint = ArcadeColors.GoldAccent,
-                    modifier = Modifier.size(15.dp)
-                )
-                Spacer(Modifier.width(3.dp))
-                Text(
-                    text = "GOAL",
-                    color = ArcadeColors.GoldAccent,
-                    fontSize = 8.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1
-                )
-            }
-            Spacer(Modifier.height(4.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(8.dp))
-                    .border(1.dp, ArcadeColors.GoldAccent.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                    .padding(vertical = 4.dp, horizontal = 2.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = value,
-                    color = ArcadeColors.GoldAccent,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Black,
-                    maxLines = 1
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun SingleMetricCard(
     modifier: Modifier = Modifier,
     label: String,
