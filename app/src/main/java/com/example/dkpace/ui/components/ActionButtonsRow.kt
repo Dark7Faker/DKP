@@ -33,7 +33,9 @@ fun ActionButtonsColumn(
     onResetRun: () -> Unit = {},
     onSaveRun: () -> Unit = {},
     resetLabel: String = "RESET",
-    resetIcon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.Refresh
+    resetIcon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.Refresh,
+    saveLabel: String = "SAVE",
+    saveIcon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.Save
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -56,14 +58,14 @@ fun ActionButtonsColumn(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Save,
+                    imageVector = saveIcon,
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = "SAVE",
+                    text = saveLabel,
                     color = Color.White,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,

@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
@@ -26,7 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Battery2Bar
 import androidx.compose.material.icons.filled.Close
@@ -49,10 +47,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
@@ -60,7 +56,9 @@ import com.example.dkpace.ui.components.ActionButtonsColumn
 import com.example.dkpace.ui.components.CurrentRunCard
 import com.example.dkpace.ui.components.HeaderSection
 import com.example.dkpace.ui.components.MetricCardsRow
+import com.example.dkpace.ui.components.RunLevelMetricsRow
 import com.example.dkpace.ui.components.GoalMetricCard
+import com.example.dkpace.ui.components.GoalDisplayCard
 import com.example.dkpace.ui.components.LevelMetrics
 import com.example.dkpace.ui.components.MainNavigationBar
 import com.example.dkpace.ui.components.MainMenu
@@ -70,12 +68,15 @@ import com.example.dkpace.ui.components.RunSortControl
 import com.example.dkpace.ui.components.SavedRun
 import com.example.dkpace.ui.components.PaceChartCard
 import com.example.dkpace.ui.components.PacePoint
+import com.example.dkpace.ui.components.SaveRunDisplayCard
 import com.example.dkpace.ui.components.SaveRunMenu
 import com.example.dkpace.ui.theme.ArcadeColors
 import kotlin.math.roundToLong
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun ArcadeTrackerScreen() {
@@ -222,10 +223,13 @@ fun ArcadeTrackerScreen() {
         .takeIf { it.isNotBlank() && it.toMetricLong() >= 0L }
         ?.toMetricLong()
         ?.formatMetric() ?: "---"
-    val saveRunScore = latestScoredMetrics?.score
-        ?.takeIf { it.isNotBlank() && it.toMetricLong() >= 0L }
-        ?.toMetricLong()
-        ?.formatMetric()
+    val saveRunScore = latestScoredMetrics
+        ?.takeIf { it.score.isNotBlank() && it.score.toMetricLong() >= 0L }
+        ?.let { metrics ->
+            (metrics.score.toMetricLong() + metrics.bonus.toMetricLong())
+                .roundToHundred()
+                .formatMetric()
+        }
         .orEmpty()
     val saveRunPacePoint = paceHistory.firstOrNull { it.level == latestScoredLevel }
     val saveRunPace = saveRunPacePoint?.pace?.formatMetric() ?: "---"
@@ -396,6 +400,49 @@ fun ArcadeTrackerScreen() {
                     val runCurrentMetrics = runMetrics[runLevel] ?: LevelMetrics()
                     val runStartMetrics = runMetrics[4] ?: LevelMetrics()
                     val runStart = runStartMetrics.score.toMetricLong() + runStartMetrics.bonus.toMetricLong()
+                    val runEndLevel = runMetrics
+                        .filter { (_, metrics) -> metrics.score.isNotBlank() && metrics.score.toMetricLong() >= 0L }
+                        .keys
+                        .maxOrNull()
+                    val runEndMetrics = runMetrics[runEndLevel ?: -1]
+                    val runEndAverageValue = if (runEndLevel != null && runEndLevel > 4 && runEndMetrics != null) {
+                        (
+                            runEndMetrics.score.toMetricLong() + runEndMetrics.bonus.toMetricLong() -
+                                runStart - runEndMetrics.death.toMetricLong()
+                            ).toDouble() / (runEndLevel - 4)
+                    } else null
+                    val runEndPaceValue = if (runEndLevel != null && runEndLevel > 4 && runEndMetrics != null) {
+                        val net = runEndMetrics.score.toMetricLong() + runEndMetrics.bonus.toMetricLong() -
+                            runEndMetrics.death.toMetricLong()
+                        (((net - runStart).toDouble() / (runEndLevel - 4)) * (21 - runEndLevel) +
+                            runEndMetrics.score.toMetricLong() + runEndMetrics.bonus.toMetricLong() + 700)
+                            .takeIf { it >= 0 }?.roundToLong()
+                    } else null
+                    val runEndPace = if (runMetrics.isEmpty()) {
+                        runDetails.pace
+                    } else {
+                        runEndPaceValue?.roundToHundred()?.formatMetric() ?: "---"
+                    }
+                    val runEndAverage = if (runMetrics.isEmpty()) {
+                        runDetails.average
+                    } else {
+                        runEndAverageValue?.takeIf { it > 4 }?.roundToLong()?.roundToHundred()?.formatMetric() ?: "---"
+                    }
+                    val runEndScore = if (runMetrics.isEmpty()) {
+                        runDetails.score.ifBlank { "---" }
+                    } else {
+                        runEndMetrics
+                            ?.takeIf { it.score.isNotBlank() }
+                            ?.let { (it.score.toMetricLong() + it.bonus.toMetricLong()).roundToHundred().formatMetric() }
+                            ?: "---"
+                    }
+                    val runStartDisplay = if (
+                        runStartMetrics.score.isNotBlank() || runStartMetrics.bonus.isNotBlank()
+                    ) runStart.roundToHundred().formatMetric() else "---"
+                    val runStatisticDate = runCatching {
+                        LocalDate.parse(runDetails.date)
+                            .format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ROOT))
+                    }.getOrDefault(runDetails.date)
                     val runScoreExists = runCurrentMetrics.score.isNotBlank()
                     val runPaceValue = if (runLevel == 4 || !runScoreExists) null else {
                         val net = runCurrentMetrics.score.toMetricLong() + runCurrentMetrics.bonus.toMetricLong() -
@@ -457,41 +504,66 @@ fun ArcadeTrackerScreen() {
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RunDetailActionButton(
-                                label = "DELETE",
-                                icon = Icons.Default.Delete,
-                                color = ArcadeColors.RedAccent,
-                                withBorder = true,
-                                onClick = {
-                                    val deleteIndex = savedRuns.indexOf(runDetails)
-                                    if (deleteIndex >= 0) {
-                                        val updatedRuns = savedRuns.filterIndexed { index, _ -> index != deleteIndex }
-                                        savedRuns = updatedRuns
-                                        preferences.edit { putString("saved_runs", saveRunsJson(updatedRuns)) }
-                                    }
-                                    selectedRun = null
+                        GoalDisplayCard(
+                            value = runDetails.goal
+                                .takeIf { it.isNotBlank() }
+                                ?.toMetricLong()
+                                ?.formatMetric() ?: "---",
+                            modifier = Modifier.weight(1f)
+                        )
+                        ActionButtonsColumn(
+                            modifier = Modifier.weight(1f),
+                            saveLabel = "EDIT",
+                            saveIcon = Icons.Default.Edit,
+                            resetLabel = "DELETE",
+                            resetIcon = Icons.Default.Delete,
+                            onSaveRun = {
+                                editingRunIndex = savedRuns.indexOf(runDetails)
+                                editingRunName = runDetails.name
+                                editingRunDraftScore = runDetails.score
+                                editingRunDraftDate = runCatching { LocalDate.parse(runDetails.date) }.getOrNull()
+                            },
+                            onResetRun = {
+                                val deleteIndex = savedRuns.indexOf(runDetails)
+                                if (deleteIndex >= 0) {
+                                    val updatedRuns = savedRuns.filterIndexed { index, _ -> index != deleteIndex }
+                                    savedRuns = updatedRuns
+                                    preferences.edit { putString("saved_runs", saveRunsJson(updatedRuns)) }
                                 }
-                            )
-                            RunDetailActionButton(
-                                label = "EDIT",
-                                icon = Icons.Default.Edit,
-                                color = ArcadeColors.GreenAccent,
-                                onClick = {
-                                    editingRunIndex = savedRuns.indexOf(runDetails)
-                                    editingRunName = runDetails.name
-                                    editingRunDraftScore = runDetails.score
-                                    editingRunDraftDate = runCatching { LocalDate.parse(runDetails.date) }.getOrNull()
-                                }
-                            )
-                        }
+                                selectedRun = null
+                            }
+                        )
                     }
+                    SaveRunDisplayCard(
+                        runName = runDetails.name,
+                        date = runStatisticDate,
+                        startScore = runStartDisplay,
+                        score = runEndScore,
+                        level = runDetails.level,
+                        pace = runEndPace,
+                        average = runEndAverage,
+                        averageColor = if (
+                            (runMetrics.isEmpty() && runDetails.averageIsRed) ||
+                                (runEndPaceValue != null && runDetails.goal.isNotBlank() &&
+                                    runEndPaceValue.roundToHundred() < runDetails.goal.toMetricLong())
+                        ) ArcadeColors.RedAccent else ArcadeColors.GreenAccent
+                    )
+                    RunLevelMetricsRow(
+                        score = runCurrentMetrics.score,
+                        bonus = runCurrentMetrics.bonus,
+                        death = runCurrentMetrics.death,
+                        currentLevel = runLevel
+                    )
+                    PaceChartCard(
+                        points = runPoints,
+                        goal = runDetails.goal.takeIf { it.isNotBlank() }?.toMetricLong(),
+                        deathpoints = runMetrics.values.sumOf { it.death.toMetricLong().coerceAtLeast(0L) },
+                        selectedLevel = runLevel,
+                        onLevelSelected = { runLevel = it }
+                    )
                     CurrentRunCard(
                         pace = displayedRunPace,
                         currentAverage = displayedRunAverage,
@@ -508,14 +580,7 @@ fun ArcadeTrackerScreen() {
                         } else {
                             ArcadeColors.GreenAccent
                         },
-                        title = "RUN STATISTIC"
-                    )
-                    PaceChartCard(
-                        points = runPoints,
-                        goal = runDetails.goal.takeIf { it.isNotBlank() }?.toMetricLong(),
-                        deathpoints = runMetrics.values.sumOf { it.death.toMetricLong().coerceAtLeast(0L) },
-                        selectedLevel = runLevel,
-                        onLevelSelected = { runLevel = it }
+                        title = "LEVEL STATISTICS"
                     )
                 } else {
                     HeaderSection(
@@ -760,41 +825,6 @@ fun ArcadeTrackerScreen() {
                     } else null
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun RunDetailActionButton(
-    label: String,
-    icon: ImageVector,
-    color: Color,
-    onClick: () -> Unit,
-    withBorder: Boolean = false
-) {
-    val shape = RoundedCornerShape(12.dp)
-    Box(
-        modifier = Modifier
-            .width(112.dp)
-            .height(40.dp)
-            .background(color, shape)
-            .then(if (withBorder) Modifier.border(1.5.dp, color, shape) else Modifier)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = label,
-                color = Color.White,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp
-            )
         }
     }
 }

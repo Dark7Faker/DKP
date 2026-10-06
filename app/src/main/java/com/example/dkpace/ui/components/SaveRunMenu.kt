@@ -248,6 +248,172 @@ fun SaveRunMenu(
 }
 
 @Composable
+fun SaveRunDisplayCard(
+    runName: String,
+    date: String,
+    startScore: String,
+    score: String,
+    level: Int?,
+    pace: String,
+    average: String,
+    averageColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(ArcadeColors.CardBackground, RoundedCornerShape(18.dp))
+            .border(1.5.dp, ArcadeColors.CyanBorder, RoundedCornerShape(18.dp))
+            .padding(18.dp)
+    ) {
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.NoteAdd,
+                    contentDescription = null,
+                    tint = ArcadeColors.CyanPrimary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "SAVE RUN",
+                    color = ArcadeColors.CyanPrimary,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.5.sp
+                )
+            }
+            Spacer(Modifier.height(18.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                SaveRunStaticInput(
+                    modifier = Modifier.weight(1.15f),
+                    label = "RUN NAME",
+                    value = runName,
+                    icon = Icons.Default.Edit,
+                    tint = ArcadeColors.CyanPrimary
+                )
+                SaveRunStaticInput(
+                    modifier = Modifier.weight(0.85f),
+                    label = "SCORE",
+                    value = score,
+                    icon = Icons.Default.Star,
+                    tint = Color(0xFFB000FF)
+                )
+            }
+            Spacer(Modifier.height(14.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(9.dp))
+                    .border(1.dp, ArcadeColors.BorderSubtle, RoundedCornerShape(9.dp))
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CalendarMonth,
+                    contentDescription = null,
+                    tint = ArcadeColors.TextSecondary,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(Modifier.width(6.dp))
+                Text("DATE", color = ArcadeColors.TextSecondary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.weight(1f))
+                Text(date, color = ArcadeColors.TextWhite, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            }
+            Spacer(Modifier.height(14.dp))
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val levelBlockWidth = (maxWidth + 18.dp) / 3.5f - 16.dp
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SaveRunSummaryItem(
+                        modifier = Modifier.weight(1f).height(80.dp),
+                        label = "START",
+                        value = startScore,
+                        icon = Icons.Default.PlayArrow,
+                        tint = ArcadeColors.GoldAccent,
+                        borderColor = ArcadeColors.GoldAccent,
+                        valueColor = ArcadeColors.GoldAccent,
+                        valueFontSize = 13.sp
+                    )
+                    SaveRunSummaryItem(
+                        modifier = Modifier.weight(1.1f).height(80.dp),
+                        label = "PACE",
+                        value = pace,
+                        icon = Icons.Default.EmojiEvents,
+                        tint = Color.White,
+                        borderColor = Color.White,
+                        valueColor = Color.White,
+                        valueFontSize = 13.sp
+                    )
+                    SaveRunSummaryItem(
+                        modifier = Modifier.weight(1f).height(80.dp),
+                        label = "AVERAGE",
+                        value = average,
+                        icon = Icons.Default.Balance,
+                        tint = averageColor,
+                        borderColor = averageColor,
+                        valueColor = averageColor,
+                        valueFontSize = 13.sp
+                    )
+                    SaveRunSummaryItem(
+                        modifier = Modifier.width(levelBlockWidth).height(80.dp),
+                        label = "LEVEL",
+                        value = level?.let { String.format(Locale.ROOT, "L = %02d", it) } ?: "---",
+                        icon = Icons.Default.Adjust,
+                        tint = ArcadeColors.CyanPrimary,
+                        borderColor = ArcadeColors.CyanBorder,
+                        emphasizeValue = level != null,
+                        valueColor = if (level == null) ArcadeColors.CyanPrimary else null,
+                        progress = level?.let { (14f + (it - 4).coerceIn(0, 17) * 6f) / 117f }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SaveRunStaticInput(
+    modifier: Modifier,
+    label: String,
+    value: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    tint: Color
+) {
+    Column(modifier = modifier) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(15.dp))
+            Spacer(Modifier.width(4.dp))
+            Text(label, color = tint, fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        }
+        Spacer(Modifier.height(6.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp)
+                .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(8.dp))
+                .border(1.dp, tint.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                .padding(horizontal = 10.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = value.ifBlank { "---" },
+                color = tint,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
 private fun SaveRunNameInput(
     modifier: Modifier,
     value: String,

@@ -149,6 +149,108 @@ fun MetricCardsRow(
 }
 
 @Composable
+fun RunLevelMetricsRow(
+    modifier: Modifier = Modifier,
+    score: String,
+    bonus: String,
+    death: String,
+    currentLevel: Int
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        ReadOnlyMetricCard(
+            modifier = Modifier.weight(1f).height(80.dp),
+            label = "SCORE",
+            value = score,
+            accentColor = Color(0xFFB000FF),
+            borderColor = Color(0xFFB000FF),
+            icon = {
+                Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFB000FF), modifier = Modifier.size(15.dp))
+            }
+        )
+        ReadOnlyMetricCard(
+            modifier = Modifier.weight(0.75f).height(80.dp),
+            label = "BONUS",
+            value = bonus,
+            accentColor = Color(0xFFC0C0C0),
+            borderColor = Color(0xFFC0C0C0),
+            icon = {
+                Icon(Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFFC0C0C0), modifier = Modifier.size(15.dp))
+            }
+        )
+        ReadOnlyMetricCard(
+            modifier = Modifier.weight(0.75f).height(80.dp),
+            label = "DEATH",
+            value = death,
+            accentColor = ArcadeColors.PinkAccent,
+            borderColor = ArcadeColors.PinkAccent,
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.ic_skull),
+                    contentDescription = null,
+                    tint = ArcadeColors.PinkAccent,
+                    modifier = Modifier.size(13.dp)
+                )
+            }
+        )
+        CurrentLevelCard(
+            modifier = Modifier.weight(1f).height(80.dp),
+            currentLevel = currentLevel,
+            compact = true
+        )
+    }
+}
+
+@Composable
+private fun ReadOnlyMetricCard(
+    modifier: Modifier,
+    label: String,
+    value: String,
+    accentColor: Color,
+    borderColor: Color,
+    icon: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .background(ArcadeColors.CardBackground, RoundedCornerShape(12.dp))
+            .border(1.dp, borderColor, RoundedCornerShape(12.dp))
+            .padding(horizontal = 6.dp, vertical = 6.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                icon()
+                Spacer(Modifier.width(3.dp))
+                Text(label, color = accentColor, fontSize = 8.5.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+            }
+            Spacer(Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(30.dp)
+                    .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(8.dp))
+                    .border(1.dp, borderColor.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 2.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = value,
+                    color = accentColor,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Black,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun GoalMetricCard(
     value: String,
     onValueChange: (String) -> Unit,
@@ -177,6 +279,62 @@ fun GoalMetricCard(
             )
         }
     )
+}
+
+@Composable
+fun GoalDisplayCard(
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(88.dp)
+            .background(ArcadeColors.CardBackground, RoundedCornerShape(12.dp))
+            .border(1.dp, ArcadeColors.GoldAccent, RoundedCornerShape(12.dp))
+            .padding(horizontal = 6.dp, vertical = 6.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Flag,
+                    contentDescription = null,
+                    tint = ArcadeColors.GoldAccent,
+                    modifier = Modifier.size(15.dp)
+                )
+                Spacer(Modifier.width(3.dp))
+                Text(
+                    text = "GOAL",
+                    color = ArcadeColors.GoldAccent,
+                    fontSize = 8.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+            }
+            Spacer(Modifier.height(4.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(8.dp))
+                    .border(1.dp, ArcadeColors.GoldAccent.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                    .padding(vertical = 4.dp, horizontal = 2.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = value,
+                    color = ArcadeColors.GoldAccent,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Black,
+                    maxLines = 1
+                )
+            }
+        }
+    }
 }
 
 @Composable
