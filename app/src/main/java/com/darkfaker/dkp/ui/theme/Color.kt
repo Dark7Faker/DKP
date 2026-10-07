@@ -1,4 +1,4 @@
-package com.example.dkpace.ui.theme
+package com.darkfaker.dkp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

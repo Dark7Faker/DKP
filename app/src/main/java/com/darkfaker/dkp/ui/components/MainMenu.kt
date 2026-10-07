@@ -1,4 +1,4 @@
-package com.example.dkpace.ui.components
+package com.darkfaker.dkp.ui.components
 
 enum class MainMenu {
     TRACKER,

@@ -1,4 +1,4 @@
-package com.example.dkpace.ui.components
+package com.darkfaker.dkp.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -48,8 +48,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.dkpace.ui.theme.ArcadeColors
-import com.example.dkpace.R
+import com.darkfaker.dkp.ui.theme.ArcadeColors
+import com.darkfaker.dkp.R
 import kotlin.math.roundToLong
 import java.util.Locale
 

@@ -1,4 +1,4 @@
-package com.example.dkpace
+package com.darkfaker.dkp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,9 +17,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.dkpace.ui.ArcadeTrackerScreen
-import com.example.dkpace.ui.DKPaceSplashScreen
-import com.example.dkpace.ui.theme.DKPaceTheme
+import com.darkfaker.dkp.ui.ArcadeTrackerScreen
+import com.darkfaker.dkp.ui.DKPaceSplashScreen
+import com.darkfaker.dkp.ui.theme.DKPaceTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 

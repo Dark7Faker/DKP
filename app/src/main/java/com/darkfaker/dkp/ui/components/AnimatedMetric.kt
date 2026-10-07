@@ -1,4 +1,4 @@
-package com.example.dkpace.ui.components
+package com.darkfaker.dkp.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.Animatable

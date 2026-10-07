@@ -1,4 +1,4 @@
-package com.example.dkpace.ui.components
+package com.darkfaker.dkp.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -43,8 +43,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.dkpace.ui.theme.ArcadeColors
-import com.example.dkpace.R
+import com.darkfaker.dkp.ui.theme.ArcadeColors
+import com.darkfaker.dkp.R
 import kotlin.math.roundToLong
 
 data class LevelMetrics(

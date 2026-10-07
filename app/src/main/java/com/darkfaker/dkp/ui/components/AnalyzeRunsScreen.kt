@@ -1,4 +1,4 @@
-package com.example.dkpace.ui.components
+package com.darkfaker.dkp.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,7 +47,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.example.dkpace.ui.theme.ArcadeColors
+import com.darkfaker.dkp.ui.theme.ArcadeColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
