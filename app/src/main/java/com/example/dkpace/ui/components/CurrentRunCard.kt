@@ -21,10 +21,13 @@ import androidx.compose.material.icons.filled.DoNotDisturbOn
 import androidx.compose.material.icons.filled.DoubleArrow
 import androidx.compose.material.icons.filled.EmojiEvents
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dkpace.ui.theme.ArcadeColors
+import kotlin.math.roundToLong
 
 @Composable
 fun CurrentRunCard(
@@ -215,11 +219,10 @@ private fun CenteredMetricRow(
                 maxLines = 1
             )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = value,
+            AnimatedMetricValue(
+                value = value,
                 color = valueColor,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Black
+                fontSize = 22.sp
             )
         }
         Box(
@@ -271,11 +274,10 @@ private fun GridRow(
                     letterSpacing = 0.5.sp
                 )
                 Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = leftValue,
+                AnimatedMetricValue(
+                    value = leftValue,
                     color = leftValueColor,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Black
+                    fontSize = 22.sp
                 )
             }
         }
@@ -298,13 +300,49 @@ private fun GridRow(
                     letterSpacing = 0.5.sp
                 )
                 Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = rightValue,
+                AnimatedMetricValue(
+                    value = rightValue,
                     color = rightValueColor,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Black
+                    fontSize = 22.sp
                 )
             }
         }
     }
+}
+
+@Composable
+private fun AnimatedMetricValue(
+    value: String,
+    color: Color,
+    fontSize: androidx.compose.ui.unit.TextUnit
+) {
+    val targetValue = value.toMetricValue().toFloat()
+    val animatedValue by animateFloatAsState(
+        targetValue = targetValue,
+        animationSpec = tween(durationMillis = 500),
+        label = "level-statistic-count"
+    )
+    val displayValue = if (value == "---" && animatedValue == 0f) {
+        "---"
+    } else {
+        animatedValue.roundToLong().roundToHundred().formatMetricValue()
+    }
+    Text(
+        text = displayValue,
+        color = color,
+        fontSize = fontSize,
+        fontWeight = FontWeight.Black
+    )
+}
+
+private fun String.toMetricValue(): Long =
+    filter { it.isDigit() || it == '-' }.toLongOrNull() ?: 0L
+
+private fun Long.roundToHundred(): Long = ((this + 50L) / 100L) * 100L
+
+private fun Long.formatMetricValue(): String {
+    val value = toString()
+    val negative = value.startsWith('-')
+    val grouped = value.removePrefix("-").reversed().chunked(3).joinToString(".").reversed()
+    return if (negative) "-$grouped" else grouped
 }
