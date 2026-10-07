@@ -28,12 +28,17 @@ import androidx.compose.ui.unit.dp
 import com.example.dkpace.R
 import kotlinx.coroutines.delay
 
+private const val LOGO_REVEAL_DELAY_MILLIS = 80L
+private const val LOGO_SCALE_DURATION_MILLIS = 800L
+
 @Composable
-fun DKPaceSplashScreen() {
+fun DKPaceSplashScreen(onLogoAnimationFinished: () -> Unit = {}) {
     var logoVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        delay(80)
+        delay(LOGO_REVEAL_DELAY_MILLIS)
         logoVisible = true
+        delay(LOGO_SCALE_DURATION_MILLIS)
+        onLogoAnimationFinished()
     }
 
     Box(
@@ -67,7 +72,10 @@ fun DKPaceSplashScreen() {
             enter = fadeIn(animationSpec = tween(700)) +
                 scaleIn(
                     initialScale = 0.92f,
-                    animationSpec = tween(800, easing = FastOutSlowInEasing)
+                    animationSpec = tween(
+                        durationMillis = LOGO_SCALE_DURATION_MILLIS.toInt(),
+                        easing = FastOutSlowInEasing
+                    )
                 )
         ) {
             Image(

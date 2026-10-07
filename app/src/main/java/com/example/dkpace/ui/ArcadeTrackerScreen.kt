@@ -128,6 +128,7 @@ fun ArcadeTrackerScreen() {
     var selectedMenu by remember { mutableStateOf(MainMenu.TRACKER) }
     var selectedRun by remember { mutableStateOf<SavedRun?>(null) }
     var showingPersonalBests by remember { mutableStateOf(false) }
+    var trackerHasBeenOpened by remember { mutableStateOf(false) }
     var selectedPersonalBestRun by remember { mutableStateOf<SavedRun?>(null) }
     var runSort by remember { mutableStateOf(RunSort.DATE) }
     var savedRuns by remember {
@@ -135,6 +136,11 @@ fun ArcadeTrackerScreen() {
     }
     LaunchedEffect(selectedMenu, selectedRun) {
         scrollState.scrollTo(0)
+    }
+    LaunchedEffect(selectedMenu, selectedRun, showingPersonalBests) {
+        if (selectedMenu != MainMenu.TRACKER || selectedRun != null || showingPersonalBests) {
+            trackerHasBeenOpened = true
+        }
     }
     SideEffect {
         window?.let { currentWindow ->
@@ -818,7 +824,8 @@ fun ArcadeTrackerScreen() {
                     value = goal,
                     onValueChange = { goal = it },
                     onInputFocusChanged = { inputFieldFocused = it },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    animateOnEnter = trackerHasBeenOpened
                 )
 
                 ActionButtonsColumn(
@@ -874,6 +881,7 @@ fun ArcadeTrackerScreen() {
                 bonus = currentMetrics.bonus,
                 death = currentMetrics.death,
                 currentLevel = currentLevel,
+                animateOnEnter = trackerHasBeenOpened,
                 onScoreChange = {
                     metricsByLevel[currentLevel] =
                         (metricsByLevel[currentLevel] ?: LevelMetrics()).copy(score = it)
@@ -898,7 +906,7 @@ fun ArcadeTrackerScreen() {
                 nextLevelNeededAverage = nextLevelNeededAverage?.formatMetric() ?: "---",
                 pointsInThisLevel = pointsInThisLevel?.formatMetric() ?: "---",
                 progressColor = progressColor,
-                animateOnEnter = true
+                animateOnEnter = trackerHasBeenOpened
             )
 
             // 6. Pace Over Time Chart Card
@@ -910,7 +918,7 @@ fun ArcadeTrackerScreen() {
                 },
                 selectedLevel = currentLevel,
                 onLevelSelected = { currentLevel = it },
-                animateDeathpointsOnEnter = true
+                animateDeathpointsOnEnter = trackerHasBeenOpened
             )
 
             // Bottom Spacer

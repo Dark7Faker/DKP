@@ -66,6 +66,7 @@ fun MetricCardsRow(
     bonus: String,
     death: String,
     currentLevel: Int,
+    animateOnEnter: Boolean = true,
     onScoreChange: (String) -> Unit,
     onBonusChange: (String) -> Unit,
     onDeathChange: (String) -> Unit,
@@ -82,7 +83,7 @@ fun MetricCardsRow(
             value = score,
             maxDigits = 7,
             animationLevel = currentLevel,
-            animateOnEnter = true,
+            animateOnEnter = animateOnEnter,
             shortcut = MetricShortcut.SCORE,
             onValueChange = onScoreChange,
             onFocusChanged = onInputFocusChanged,
@@ -107,7 +108,7 @@ fun MetricCardsRow(
             value = bonus,
             maxDigits = 5,
             animationLevel = currentLevel,
-            animateOnEnter = true,
+            animateOnEnter = animateOnEnter,
             shortcut = MetricShortcut.BONUS_OR_DEATH,
             onValueChange = onBonusChange,
             onFocusChanged = onInputFocusChanged,
@@ -132,7 +133,7 @@ fun MetricCardsRow(
             value = death,
             maxDigits = 5,
             animationLevel = currentLevel,
-            animateOnEnter = true,
+            animateOnEnter = animateOnEnter,
             shortcut = MetricShortcut.BONUS_OR_DEATH,
             onValueChange = onDeathChange,
             onFocusChanged = onInputFocusChanged,
@@ -154,7 +155,7 @@ fun MetricCardsRow(
             modifier = Modifier.weight(1f).height(80.dp),
             currentLevel = currentLevel,
             compact = true,
-            animateTextFromZeroOnEnter = true,
+            animateTextFromZeroOnEnter = animateOnEnter,
         )
     }
 }
@@ -279,7 +280,8 @@ fun GoalMetricCard(
     value: String,
     onValueChange: (String) -> Unit,
     onInputFocusChanged: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    animateOnEnter: Boolean = true
 ) {
     SingleMetricCard(
         modifier = modifier.fillMaxWidth().height(88.dp),
@@ -294,7 +296,7 @@ fun GoalMetricCard(
         inputTextColor = ArcadeColors.GoldAccent,
         compact = true,
         restorePreviousOnEmpty = false,
-        animateOnEnter = true,
+        animateOnEnter = animateOnEnter,
         icon = {
             Icon(
                 imageVector = Icons.Default.Flag,

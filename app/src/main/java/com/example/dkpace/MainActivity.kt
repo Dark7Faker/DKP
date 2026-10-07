@@ -14,9 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import kotlinx.coroutines.delay
 import com.example.dkpace.ui.ArcadeTrackerScreen
 import com.example.dkpace.ui.DKPaceSplashScreen
 import com.example.dkpace.ui.theme.DKPaceTheme
@@ -31,18 +31,22 @@ class MainActivity : ComponentActivity() {
         setContent {
             DKPaceTheme {
                 var splashVisible by remember { mutableStateOf(true) }
-                LaunchedEffect(Unit) {
-                    delay(1_100)
-                    splashVisible = false
-                }
+                var trackerVisible by remember { mutableStateOf(false) }
                 Box(Modifier.fillMaxSize()) {
-                    ArcadeTrackerScreen()
+                    if (trackerVisible) {
+                        ArcadeTrackerScreen()
+                        LaunchedEffect(Unit) {
+                            withFrameNanos { }
+                            withFrameNanos { }
+                            splashVisible = false
+                        }
+                    }
                     AnimatedVisibility(
                         visible = splashVisible,
                         modifier = Modifier.fillMaxSize(),
                         exit = fadeOut(animationSpec = tween(durationMillis = 450))
                     ) {
-                        DKPaceSplashScreen()
+                        DKPaceSplashScreen(onLogoAnimationFinished = { trackerVisible = true })
                     }
                 }
             }
