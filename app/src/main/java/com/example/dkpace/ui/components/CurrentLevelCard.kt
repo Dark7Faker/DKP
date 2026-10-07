@@ -36,7 +36,8 @@ fun CurrentLevelCard(
     compact: Boolean = false,
     hideBorder: Boolean = false
 ) {
-    val levelText = String.format("L = %02d", currentLevel)
+    val animatedLevel = animatedMetricNumber(currentLevel.toLong()).toInt()
+    val levelText = String.format("L = %02d", animatedLevel)
 
     Box(
         modifier = modifier

@@ -21,8 +21,6 @@ import androidx.compose.material.icons.filled.DoNotDisturbOn
 import androidx.compose.material.icons.filled.DoubleArrow
 import androidx.compose.material.icons.filled.EmojiEvents
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -35,7 +33,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dkpace.ui.theme.ArcadeColors
-import kotlin.math.roundToLong
 
 @Composable
 fun CurrentRunCard(
@@ -316,16 +313,11 @@ private fun AnimatedMetricValue(
     color: Color,
     fontSize: androidx.compose.ui.unit.TextUnit
 ) {
-    val targetValue = value.toMetricValue().toFloat()
-    val animatedValue by animateFloatAsState(
-        targetValue = targetValue,
-        animationSpec = tween(durationMillis = 500),
-        label = "level-statistic-count"
-    )
-    val displayValue = if (value == "---" && animatedValue == 0f) {
+    val animatedValue = animatedMetricNumber(metricTextToLong(value))
+    val displayValue = if (value == "---" && animatedValue == 0L) {
         "---"
     } else {
-        animatedValue.roundToLong().roundToHundred().formatMetricValue()
+        formatMetricNumber(roundMetricToHundred(animatedValue))
     }
     Text(
         text = displayValue,
@@ -335,14 +327,3 @@ private fun AnimatedMetricValue(
     )
 }
 
-private fun String.toMetricValue(): Long =
-    filter { it.isDigit() || it == '-' }.toLongOrNull() ?: 0L
-
-private fun Long.roundToHundred(): Long = ((this + 50L) / 100L) * 100L
-
-private fun Long.formatMetricValue(): String {
-    val value = toString()
-    val negative = value.startsWith('-')
-    val grouped = value.removePrefix("-").reversed().chunked(3).joinToString(".").reversed()
-    return if (negative) "-$grouped" else grouped
-}

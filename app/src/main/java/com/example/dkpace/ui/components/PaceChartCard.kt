@@ -125,7 +125,7 @@ fun PaceChartCard(
                         modifier = Modifier.size(14.dp)
                     )
                     Text(
-                        text = "Deathpoints: ${formatDeathpoints(deathpoints)}",
+                        text = "Deathpoints: ${formatDeathpoints(animatedMetricNumber(deathpoints))}",
                         color = ArcadeColors.RedAccent,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
@@ -452,7 +452,7 @@ fun PaceChartCard(
 }
 
 private fun formatDeathpoints(value: Long): String =
-    value.toString().reversed().chunked(3).joinToString(".").reversed()
+    formatMetricNumber(value)
 
 private fun formatAxisValue(rounded: Long): String {
     return when {

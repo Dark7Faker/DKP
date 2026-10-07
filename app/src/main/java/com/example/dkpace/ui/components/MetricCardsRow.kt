@@ -77,6 +77,7 @@ fun MetricCardsRow(
             label = "SCORE",
             value = score,
             maxDigits = 7,
+            animationLevel = currentLevel,
             shortcut = MetricShortcut.SCORE,
             onValueChange = onScoreChange,
             onFocusChanged = onInputFocusChanged,
@@ -100,6 +101,7 @@ fun MetricCardsRow(
             label = "BONUS",
             value = bonus,
             maxDigits = 5,
+            animationLevel = currentLevel,
             shortcut = MetricShortcut.BONUS_OR_DEATH,
             onValueChange = onBonusChange,
             onFocusChanged = onInputFocusChanged,
@@ -123,6 +125,7 @@ fun MetricCardsRow(
             label = "DEATH",
             value = death,
             maxDigits = 5,
+            animationLevel = currentLevel,
             shortcut = MetricShortcut.BONUS_OR_DEATH,
             onValueChange = onDeathChange,
             onFocusChanged = onInputFocusChanged,
@@ -164,6 +167,7 @@ fun RunLevelMetricsRow(
             modifier = Modifier.weight(1f).height(80.dp),
             label = "SCORE",
             value = score,
+            animationLevel = currentLevel,
             accentColor = Color(0xFFB000FF),
             borderColor = Color(0xFFB000FF),
             icon = {
@@ -174,6 +178,7 @@ fun RunLevelMetricsRow(
             modifier = Modifier.weight(0.75f).height(80.dp),
             label = "BONUS",
             value = bonus,
+            animationLevel = currentLevel,
             accentColor = Color(0xFFC0C0C0),
             borderColor = Color(0xFFC0C0C0),
             icon = {
@@ -184,6 +189,7 @@ fun RunLevelMetricsRow(
             modifier = Modifier.weight(0.75f).height(80.dp),
             label = "DEATH",
             value = death,
+            animationLevel = currentLevel,
             accentColor = ArcadeColors.PinkAccent,
             borderColor = ArcadeColors.PinkAccent,
             icon = {
@@ -208,10 +214,20 @@ private fun ReadOnlyMetricCard(
     modifier: Modifier,
     label: String,
     value: String,
+    animationLevel: Int,
     accentColor: Color,
     borderColor: Color,
     icon: @Composable () -> Unit
 ) {
+    val animatedValue = animatedMetricNumberOnLevelChange(
+        target = metricTextToLong(value),
+        level = animationLevel
+    )
+    val displayedValue = if (value.isBlank() && animatedValue == 0L) {
+        ""
+    } else {
+        formatMetricNumber(roundMetricToHundred(animatedValue))
+    }
     Box(
         modifier = modifier
             .background(ArcadeColors.CardBackground, RoundedCornerShape(12.dp))
@@ -238,7 +254,7 @@ private fun ReadOnlyMetricCard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = value,
+                    text = displayedValue,
                     color = accentColor,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Black,
@@ -287,6 +303,7 @@ private fun SingleMetricCard(
     label: String,
     value: String,
     maxDigits: Int,
+    animationLevel: Int? = null,
     shortcut: MetricShortcut,
     onValueChange: (String) -> Unit,
     onFocusChanged: (Boolean) -> Unit,
@@ -300,7 +317,19 @@ private fun SingleMetricCard(
     icon: @Composable () -> Unit
 ) {
     var wasFocused by remember { mutableStateOf(false) }
+    var isFocused by remember { mutableStateOf(false) }
     var previousValue by remember { mutableStateOf("") }
+    val numericValue = metricTextToLong(value)
+    val animatedValue = animationLevel?.let {
+        animatedMetricNumberOnLevelChange(numericValue, it)
+    } ?: numericValue
+    val displayedValue = if (isFocused) {
+        value
+    } else if (value.isBlank() && animatedValue == 0L) {
+        ""
+    } else {
+        formatMetricNumber(roundMetricToHundred(animatedValue))
+    }
     val focusManager = LocalFocusManager.current
     Box(
         modifier = modifier
@@ -354,7 +383,7 @@ private fun SingleMetricCard(
                 contentAlignment = Alignment.Center
             ) {
                 BasicTextField(
-                    value = value,
+                    value = displayedValue,
                     onValueChange = { input ->
                         val digits = input.filter(Char::isDigit)
                         if (digits.length <= maxDigits) onValueChange(digits)
@@ -380,6 +409,7 @@ private fun SingleMetricCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
+                            isFocused = focusState.isFocused
                             onFocusChanged(focusState.isFocused)
                             if (focusState.isFocused && !wasFocused) {
                                 wasFocused = true
