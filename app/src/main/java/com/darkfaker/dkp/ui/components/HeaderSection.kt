@@ -1,4 +1,4 @@
-package com.example.dkpace.ui.components
+package com.darkfaker.dkp.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,10 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Battery1Bar
 import androidx.compose.material.icons.filled.Battery2Bar
-import androidx.compose.material.icons.filled.Brightness3
-import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -24,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.dkpace.ui.theme.ArcadeColors
+import com.darkfaker.dkp.ui.theme.ArcadeColors
 
 @Composable
 fun HeaderSection(

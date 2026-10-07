@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.dkpace"
+    namespace = "com.darkfaker.dkp"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.dkpace"
+        applicationId = "com.darkfaker.dkp"
         minSdk = 26
         targetSdk = 37
         versionCode = 1

@@ -1,4 +1,4 @@
-package com.example.dkpace.ui
+package com.darkfaker.dkp.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import com.example.dkpace.R
+import com.darkfaker.dkp.R
 import kotlinx.coroutines.delay
 
 private const val LOGO_REVEAL_DELAY_MILLIS = 80L

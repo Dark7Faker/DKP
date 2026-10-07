@@ -1,4 +1,4 @@
-package com.example.dkpace.ui.components
+package com.darkfaker.dkp.ui.components
 
 import android.app.DatePickerDialog
 import android.view.ContextThemeWrapper
@@ -58,8 +58,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.TextUnit
 import kotlin.math.roundToLong
-import com.example.dkpace.R
-import com.example.dkpace.ui.theme.ArcadeColors
+import com.darkfaker.dkp.R
+import com.darkfaker.dkp.ui.theme.ArcadeColors
 import java.util.Locale
 import java.time.LocalDate
 import java.time.ZoneId

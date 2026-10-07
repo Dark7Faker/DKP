@@ -1,4 +1,4 @@
-package com.example.dkpace
+package com.darkfaker.dkp
 
 import org.junit.Test
 
