@@ -33,15 +33,16 @@ import androidx.compose.material.icons.filled.Battery2Bar
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -568,7 +569,7 @@ fun ArcadeTrackerScreen() {
                                     selectedRun = null
                                 }, modifier = Modifier.size(32.dp)) {
                                     Icon(
-                                        imageVector = Icons.Default.Home,
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = "Back to Analyze Runs",
                                         tint = ArcadeColors.TextWhite,
                                         modifier = Modifier.size(20.dp)
@@ -663,30 +664,34 @@ fun ArcadeTrackerScreen() {
                         },
                         animateDeathpointsOnEnter = true
                     )
-                    RunLevelMetricsRow(
-                        score = runCurrentMetrics.score,
-                        bonus = runCurrentMetrics.bonus,
-                        death = runCurrentMetrics.death,
-                        currentLevel = runLevel
-                    )
-                    CurrentRunCard(
-                        pace = displayedRunPace,
-                        currentAverage = displayedRunAverage,
-                        nextLevelCurrentAverage = runNextCurrent?.formatMetric() ?: "---",
-                        neededAverage = displayedRunNeeded,
-                        nextLevelNeededAverage = runNextNeeded?.formatMetric() ?: "---",
-                        pointsInThisLevel = runPointsThisLevel?.formatMetric() ?: "---",
-                        progressColor = if (
-                            (runMetrics.isEmpty() && runDetails.averageIsRed) ||
-                            (runPaceValue != null && runDetails.goal.isNotBlank() &&
-                                runPaceValue.roundToHundred() < runDetails.goal.toMetricLong())
-                        ) {
-                            ArcadeColors.RedAccent
-                        } else {
-                            ArcadeColors.GreenAccent
-                        },
-                        title = "LEVEL STATISTICS"
-                    )
+                    key(runDetails) {
+                        RunLevelMetricsRow(
+                            score = runCurrentMetrics.score,
+                            bonus = runCurrentMetrics.bonus,
+                            death = runCurrentMetrics.death,
+                            currentLevel = runLevel
+                        )
+                    }
+                    key(runDetails) {
+                        CurrentRunCard(
+                            pace = displayedRunPace,
+                            currentAverage = displayedRunAverage,
+                            nextLevelCurrentAverage = runNextCurrent?.formatMetric() ?: "---",
+                            neededAverage = displayedRunNeeded,
+                            nextLevelNeededAverage = runNextNeeded?.formatMetric() ?: "---",
+                            pointsInThisLevel = runPointsThisLevel?.formatMetric() ?: "---",
+                            progressColor = if (
+                                (runMetrics.isEmpty() && runDetails.averageIsRed) ||
+                                (runPaceValue != null && runDetails.goal.isNotBlank() &&
+                                    runPaceValue.roundToHundred() < runDetails.goal.toMetricLong())
+                            ) {
+                                ArcadeColors.RedAccent
+                            } else {
+                                ArcadeColors.GreenAccent
+                            },
+                            title = "LEVEL STATISTICS"
+                        )
+                    }
                 } else if (showingPersonalBests) {
                     val personalBestPoints = remember(savedRuns) {
                         var highestScore = -1L
@@ -725,7 +730,7 @@ fun ArcadeTrackerScreen() {
                                     selectedPersonalBestRun = null
                                 }, modifier = Modifier.size(32.dp)) {
                                     Icon(
-                                        imageVector = Icons.Default.Home,
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = "Back to Analyze Runs",
                                         tint = ArcadeColors.TextWhite,
                                         modifier = Modifier.size(20.dp)
