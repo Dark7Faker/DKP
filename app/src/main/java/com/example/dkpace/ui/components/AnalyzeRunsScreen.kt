@@ -3,6 +3,7 @@ package com.example.dkpace.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -83,6 +84,7 @@ fun RunSortControl(
     modifier: Modifier = Modifier
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
+    val sortInteractionSource = remember { MutableInteractionSource() }
     val sortControlWidth = 93.dp
     val sortMenuShape = RoundedCornerShape(9.dp)
     Box(modifier = modifier.width(sortControlWidth)) {
@@ -91,7 +93,10 @@ fun RunSortControl(
                 .fillMaxWidth()
                 .background(ArcadeColors.CardBackground, sortMenuShape)
                 .border(1.dp, ArcadeColors.CyanBorder, sortMenuShape)
-                .clickable { menuExpanded = true }
+                .clickable(
+                    interactionSource = sortInteractionSource,
+                    indication = null
+                ) { menuExpanded = true }
                 .padding(horizontal = 7.dp, vertical = 7.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -242,6 +247,7 @@ private fun SavedRunCard(
     sidebarColor: Color,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -259,7 +265,11 @@ private fun SavedRunCard(
                 )
             }
             .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
             .padding(start = 18.dp, end = 12.dp, top = 10.dp, bottom = 10.dp)
     ) {
         Row(

@@ -3,6 +3,7 @@ package com.example.dkpace.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +39,8 @@ fun ActionButtonsColumn(
     saveLabel: String = "SAVE",
     saveIcon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.Save
 ) {
+    val saveInteractionSource = remember { MutableInteractionSource() }
+    val resetInteractionSource = remember { MutableInteractionSource() }
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -50,7 +54,11 @@ fun ActionButtonsColumn(
                     color = ArcadeColors.GreenAccent,
                     shape = RoundedCornerShape(12.dp)
                 )
-                .clickable(onClick = onSaveRun),
+                .clickable(
+                    interactionSource = saveInteractionSource,
+                    indication = null,
+                    onClick = onSaveRun
+                ),
             contentAlignment = Alignment.Center
         ) {
             Row(
@@ -88,7 +96,11 @@ fun ActionButtonsColumn(
                     color = ArcadeColors.RedAccent,
                     shape = RoundedCornerShape(12.dp)
                 )
-                .clickable(onClick = onResetRun),
+                .clickable(
+                    interactionSource = resetInteractionSource,
+                    indication = null,
+                    onClick = onResetRun
+                ),
             contentAlignment = Alignment.Center
         ) {
             Row(

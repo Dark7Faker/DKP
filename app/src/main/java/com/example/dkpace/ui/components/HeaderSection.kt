@@ -82,7 +82,7 @@ fun HeaderSection(
                 )
                 .border(
                     width = 1.dp,
-                    color = ArcadeColors.BorderSubtle,
+                    color = ArcadeColors.CyanBorder,
                     shape = RoundedCornerShape(12.dp)
                 )
                 .padding(2.dp)

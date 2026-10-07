@@ -27,7 +27,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Battery2Bar
 import androidx.compose.material.icons.filled.Close
@@ -38,6 +40,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -86,7 +89,9 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun ArcadeTrackerScreen() {
+    CompositionLocalProvider(LocalRippleConfiguration provides null) {
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -978,6 +983,7 @@ fun ArcadeTrackerScreen() {
                 )
             }
         }
+    }
     }
 }
 

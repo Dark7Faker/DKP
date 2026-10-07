@@ -5,6 +5,7 @@ import android.view.ContextThemeWrapper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -566,12 +567,17 @@ private fun formatSaveRunScore(value: String): String {
 
 @Composable
 private fun SaveRunDateItem(date: String, onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(9.dp))
             .border(1.dp, ArcadeColors.BorderSubtle, RoundedCornerShape(9.dp))
-            .clickable(onClick = onClick)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -607,6 +613,7 @@ private fun SaveRunActionButton(
     outlined: Boolean = false,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = modifier
             .height(48.dp)
@@ -615,7 +622,11 @@ private fun SaveRunActionButton(
                 if (outlined) Modifier.border(1.5.dp, color, RoundedCornerShape(12.dp))
                 else Modifier
             )
-            .clickable(onClick = onClick)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
