@@ -660,7 +660,8 @@ fun ArcadeTrackerScreen() {
                         onLevelSelected = {
                             focusManager.clearFocus()
                             runLevel = it
-                        }
+                        },
+                        animateDeathpointsOnEnter = true
                     )
                     RunLevelMetricsRow(
                         score = runCurrentMetrics.score,
@@ -891,7 +892,8 @@ fun ArcadeTrackerScreen() {
                 neededAverage = neededAverage?.formatMetric() ?: "---",
                 nextLevelNeededAverage = nextLevelNeededAverage?.formatMetric() ?: "---",
                 pointsInThisLevel = pointsInThisLevel?.formatMetric() ?: "---",
-                progressColor = progressColor
+                progressColor = progressColor,
+                animateOnEnter = true
             )
 
             // 6. Pace Over Time Chart Card
@@ -902,7 +904,8 @@ fun ArcadeTrackerScreen() {
                     metrics.death.toMetricLong().takeIf { it > 0L } ?: 0L
                 },
                 selectedLevel = currentLevel,
-                onLevelSelected = { currentLevel = it }
+                onLevelSelected = { currentLevel = it },
+                animateDeathpointsOnEnter = true
             )
 
             // Bottom Spacer

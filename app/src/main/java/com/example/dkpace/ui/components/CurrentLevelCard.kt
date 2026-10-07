@@ -17,9 +17,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,15 +29,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dkpace.ui.theme.ArcadeColors
+import kotlin.math.roundToInt
 
 @Composable
 fun CurrentLevelCard(
     modifier: Modifier = Modifier,
     currentLevel: Int = 4,
     compact: Boolean = false,
-    hideBorder: Boolean = false
+    hideBorder: Boolean = false,
+    animateTextFromZeroOnEnter: Boolean = false
 ) {
-    val animatedLevel = animatedMetricNumber(currentLevel.toLong()).toInt()
+    val animatedLevel = if (animateTextFromZeroOnEnter) {
+        val entranceLevel = remember { Animatable(0f) }
+        LaunchedEffect(currentLevel) {
+            entranceLevel.animateTo(
+                targetValue = currentLevel.toFloat(),
+                animationSpec = tween(durationMillis = 500)
+            )
+        }
+        entranceLevel.value.roundToInt()
+    } else {
+        animatedMetricNumber(currentLevel.toLong()).toInt()
+    }
     val levelText = String.format("L = %02d", animatedLevel)
 
     Box(
@@ -90,11 +104,13 @@ fun CurrentLevelCard(
             )
             if (compact) {
                 val levelProgress = (14f + (currentLevel - 4).coerceIn(0, 17) * 6f) / 117f
-                val animatedLevelProgress by animateFloatAsState(
-                    targetValue = levelProgress,
-                    animationSpec = tween(durationMillis = 500),
-                    label = "level-progress"
-                )
+                val animatedLevelProgress = remember { Animatable(0f) }
+                LaunchedEffect(currentLevel) {
+                    animatedLevelProgress.animateTo(
+                        targetValue = levelProgress,
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Box(
                     modifier = Modifier
@@ -105,7 +121,7 @@ fun CurrentLevelCard(
                 ) {
                     Box(
                         modifier = Modifier
-                        .fillMaxWidth(animatedLevelProgress)
+                        .fillMaxWidth(animatedLevelProgress.value)
                             .height(5.dp)
                             .clip(RoundedCornerShape(50))
                             .background(ArcadeColors.CyanPrimary)

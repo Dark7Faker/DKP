@@ -24,7 +24,14 @@ import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.PriorityHigh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -62,8 +69,27 @@ fun PaceChartCard(
     deathpoints: Long,
     selectedLevel: Int,
     onLevelSelected: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    animateDeathpointsOnEnter: Boolean = false
 ) {
+    val deathpointsEntrance = remember { Animatable(0f) }
+    var deathpointsEntranceFinished by remember {
+        mutableStateOf(!animateDeathpointsOnEnter)
+    }
+    LaunchedEffect(animateDeathpointsOnEnter) {
+        if (animateDeathpointsOnEnter) {
+            deathpointsEntrance.animateTo(
+                targetValue = deathpoints.toFloat(),
+                animationSpec = tween(durationMillis = 500)
+            )
+            deathpointsEntranceFinished = true
+        }
+    }
+    val displayedDeathpoints = if (animateDeathpointsOnEnter && !deathpointsEntranceFinished) {
+        deathpointsEntrance.value.roundToLong()
+    } else {
+        animatedMetricNumber(deathpoints)
+    }
     val xAxisLevels = points.maxOfOrNull { it.level }
         ?.let { highestLevel -> (5..highestLevel).toList() }
         .orEmpty()
@@ -125,7 +151,7 @@ fun PaceChartCard(
                         modifier = Modifier.size(14.dp)
                     )
                     Text(
-                        text = "Deathpoints: ${formatDeathpoints(animatedMetricNumber(deathpoints))}",
+                        text = "Deathpoints: ${formatDeathpoints(displayedDeathpoints)}",
                         color = ArcadeColors.RedAccent,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,

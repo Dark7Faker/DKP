@@ -33,9 +33,10 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.TextUnit
+import kotlin.math.roundToLong
 import com.example.dkpace.R
 import com.example.dkpace.ui.theme.ArcadeColors
 import java.util.Locale
@@ -126,7 +128,8 @@ fun SaveRunMenu(
                 SaveRunScoreInput(
                     modifier = Modifier.weight(0.85f),
                     initialScore = score,
-                    onScoreChange = { editedScore = it }
+                    onScoreChange = { editedScore = it },
+                    animateOnEnter = true
                 )
             }
 
@@ -163,7 +166,8 @@ fun SaveRunMenu(
                         tint = ArcadeColors.GoldAccent,
                         borderColor = ArcadeColors.GoldAccent,
                         valueColor = ArcadeColors.GoldAccent,
-                        valueFontSize = 13.sp
+                        valueFontSize = 13.sp,
+                        animateOnEnter = true
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.weight(1.1f).height(80.dp),
@@ -173,7 +177,8 @@ fun SaveRunMenu(
                         tint = Color.White,
                         borderColor = Color.White,
                         valueColor = Color.White,
-                        valueFontSize = 13.sp
+                        valueFontSize = 13.sp,
+                        animateOnEnter = true
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.weight(1f).height(80.dp),
@@ -183,7 +188,8 @@ fun SaveRunMenu(
                         tint = averageColor,
                         borderColor = averageColor,
                         valueColor = averageColor,
-                        valueFontSize = 13.sp
+                        valueFontSize = 13.sp,
+                        animateOnEnter = true
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.width(trackerLevelBlockWidth).height(80.dp),
@@ -196,6 +202,11 @@ fun SaveRunMenu(
                         valueColor = if (level == null) ArcadeColors.CyanPrimary else null,
                         progress = level?.let {
                             (14f + (it - 4).coerceIn(0, 17) * 6f) / 117f
+                        },
+                        progressAnimationFromZero = level != null,
+                        animateOnEnter = level != null,
+                        animatedValueFormat = { animatedLevel ->
+                            String.format(Locale.ROOT, "L = %02d", animatedLevel)
                         }
                     )
                 }
@@ -287,7 +298,8 @@ fun SaveRunDisplayCard(
                 SaveRunScoreInput(
                     modifier = Modifier.weight(0.85f),
                     initialScore = initialScore,
-                    onScoreChange = onScoreChange
+                    onScoreChange = onScoreChange,
+                    animateOnEnter = true
                 )
             }
             Spacer(Modifier.height(14.dp))
@@ -307,7 +319,8 @@ fun SaveRunDisplayCard(
                         tint = ArcadeColors.GoldAccent,
                         borderColor = ArcadeColors.GoldAccent,
                         valueColor = ArcadeColors.GoldAccent,
-                        valueFontSize = 13.sp
+                        valueFontSize = 13.sp,
+                        animateOnEnter = true
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.weight(1.1f).height(80.dp),
@@ -317,7 +330,8 @@ fun SaveRunDisplayCard(
                         tint = Color.White,
                         borderColor = Color.White,
                         valueColor = Color.White,
-                        valueFontSize = 13.sp
+                        valueFontSize = 13.sp,
+                        animateOnEnter = true
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.weight(1f).height(80.dp),
@@ -327,7 +341,8 @@ fun SaveRunDisplayCard(
                         tint = averageColor,
                         borderColor = averageColor,
                         valueColor = averageColor,
-                        valueFontSize = 13.sp
+                        valueFontSize = 13.sp,
+                        animateOnEnter = true
                     )
                     SaveRunSummaryItem(
                         modifier = Modifier.width(levelBlockWidth).height(80.dp),
@@ -338,7 +353,12 @@ fun SaveRunDisplayCard(
                         borderColor = ArcadeColors.CyanBorder,
                         emphasizeValue = level != null,
                         valueColor = if (level == null) ArcadeColors.CyanPrimary else null,
-                        progress = level?.let { (14f + (it - 4).coerceIn(0, 17) * 6f) / 117f }
+                        progress = level?.let { (14f + (it - 4).coerceIn(0, 17) * 6f) / 117f },
+                        progressAnimationFromZero = level != null,
+                        animateOnEnter = level != null,
+                        animatedValueFormat = { animatedLevel ->
+                            String.format(Locale.ROOT, "L = %02d", animatedLevel)
+                        }
                     )
                 }
             }
@@ -424,11 +444,33 @@ private fun SaveRunNameInput(
 private fun SaveRunScoreInput(
     modifier: Modifier,
     initialScore: String,
-    onScoreChange: (String) -> Unit
+    onScoreChange: (String) -> Unit,
+    animateOnEnter: Boolean = false
 ) {
     var score by remember(initialScore) { mutableStateOf(initialScore) }
     var previousScore by remember(initialScore) { mutableStateOf(initialScore) }
     var wasFocused by remember { mutableStateOf(false) }
+    var wasEdited by remember { mutableStateOf(false) }
+    val animatedScore = remember { Animatable(0f) }
+    var entranceAnimationFinished by remember {
+        mutableStateOf(!animateOnEnter || initialScore.isBlank() || initialScore == "---")
+    }
+    LaunchedEffect(animateOnEnter) {
+        if (animateOnEnter && initialScore.isNotBlank() && initialScore != "---") {
+            animatedScore.animateTo(
+                targetValue = metricTextToLong(initialScore).toFloat(),
+                animationSpec = tween(durationMillis = 500)
+            )
+            entranceAnimationFinished = true
+        }
+    }
+    val displayedScore = if (
+        animateOnEnter && !entranceAnimationFinished && !wasFocused && !wasEdited
+    ) {
+        formatMetricNumber(roundMetricToHundred(animatedScore.value.roundToLong()))
+    } else {
+        score
+    }
     val focusManager = LocalFocusManager.current
 
     Column(modifier = modifier) {
@@ -472,7 +514,7 @@ private fun SaveRunScoreInput(
                 )
             }
             BasicTextField(
-                value = score,
+                value = displayedScore,
                 onValueChange = { input ->
                     val digits = input.filter(Char::isDigit)
                     if (digits.length <= 7) {
@@ -498,6 +540,7 @@ private fun SaveRunScoreInput(
                         if (focusState.isFocused && !wasFocused) {
                             previousScore = score
                             wasFocused = true
+                            wasEdited = true
                             score = ""
                         } else if (!focusState.isFocused && wasFocused) {
                             wasFocused = false
@@ -601,13 +644,45 @@ private fun SaveRunSummaryItem(
     emphasizeValue: Boolean = false,
     valueColor: Color? = null,
     valueFontSize: TextUnit? = null,
-    progress: Float? = null
+    progress: Float? = null,
+    progressAnimationFromZero: Boolean = false,
+    animateOnEnter: Boolean = false,
+    animatedValueFormat: (Long) -> String = {
+        formatMetricNumber(roundMetricToHundred(it))
+    }
 ) {
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress ?: 0f,
-        animationSpec = tween(durationMillis = 500),
-        label = "save-run-level-progress"
-    )
+    val animatedValue = remember { Animatable(0f) }
+    var entranceAnimationFinished by remember {
+        mutableStateOf(!animateOnEnter || value.isBlank() || value == "---")
+    }
+    LaunchedEffect(animateOnEnter) {
+        if (animateOnEnter && value.isNotBlank() && value != "---") {
+            animatedValue.animateTo(
+                targetValue = metricTextToLong(value).toFloat(),
+                animationSpec = tween(durationMillis = 500)
+            )
+            entranceAnimationFinished = true
+        }
+    }
+    val displayedValue = if (animateOnEnter && !entranceAnimationFinished) {
+        animatedValueFormat(animatedValue.value.roundToLong())
+    } else {
+        value
+    }
+    val animatedProgress = remember {
+        Animatable(if (progressAnimationFromZero) 0f else progress ?: 0f)
+    }
+    LaunchedEffect(progress, progressAnimationFromZero) {
+        val targetProgress = progress ?: 0f
+        if (progressAnimationFromZero) {
+            animatedProgress.animateTo(
+                targetValue = targetProgress,
+                animationSpec = tween(durationMillis = 500)
+            )
+        } else {
+            animatedProgress.snapTo(targetProgress)
+        }
+    }
     Column(
         modifier = modifier
             .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(9.dp))
@@ -632,7 +707,7 @@ private fun SaveRunSummaryItem(
         }
         Spacer(Modifier.height(6.dp))
         Text(
-            text = value,
+            text = displayedValue,
             color = valueColor ?: if (emphasizeValue) tint else ArcadeColors.TextWhite,
             fontSize = valueFontSize ?: if (emphasizeValue) 18.sp else 11.sp,
             fontWeight = if (emphasizeValue) FontWeight.ExtraBold else FontWeight.Bold,
@@ -651,7 +726,7 @@ private fun SaveRunSummaryItem(
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth(animatedProgress.coerceIn(0f, 1f))
+                        .fillMaxWidth(animatedProgress.value.coerceIn(0f, 1f))
                         .height(5.dp)
                         .clip(RoundedCornerShape(50))
                         .background(ArcadeColors.CyanPrimary)

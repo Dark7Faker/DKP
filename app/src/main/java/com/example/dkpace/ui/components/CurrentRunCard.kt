@@ -24,8 +24,14 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,7 +52,8 @@ fun CurrentRunCard(
     progressColor: Color,
     title: String = "LEVEL STATISTICS",
     showPointsThisLevel: Boolean = true,
-    showNextLevelMetrics: Boolean = true
+    showNextLevelMetrics: Boolean = true,
+    animateOnEnter: Boolean = false
 ) {
     Box(
         modifier = modifier
@@ -102,7 +109,8 @@ fun CurrentRunCard(
                 },
                 label = "PACE",
                 value = pace,
-                valueColor = ArcadeColors.TextWhite
+                valueColor = ArcadeColors.TextWhite,
+                animateOnEnter = animateOnEnter
             )
 
             GridDivider()
@@ -119,7 +127,8 @@ fun CurrentRunCard(
                     },
                     label = "POINTS THIS LEVEL",
                     value = pointsInThisLevel,
-                    valueColor = ArcadeColors.TextWhite
+                    valueColor = ArcadeColors.TextWhite,
+                    animateOnEnter = animateOnEnter
                 )
 
                 GridDivider()
@@ -149,7 +158,8 @@ fun CurrentRunCard(
                 },
                 rightLabel = "NEEDED AVERAGE",
                 rightValue = neededAverage,
-                rightValueColor = ArcadeColors.GoldAccent
+                rightValueColor = ArcadeColors.GoldAccent,
+                animateOnEnter = animateOnEnter
             )
 
             if (showNextLevelMetrics) GridDivider()
@@ -178,7 +188,8 @@ fun CurrentRunCard(
                 },
                 rightLabel = "NEXT LEVEL - NEEDED",
                 rightValue = nextLevelNeededAverage,
-                rightValueColor = ArcadeColors.GoldAccent
+                rightValueColor = ArcadeColors.GoldAccent,
+                animateOnEnter = animateOnEnter
             )
         }
     }
@@ -189,7 +200,8 @@ private fun CenteredMetricRow(
     icon: @Composable () -> Unit,
     label: String,
     value: String,
-    valueColor: Color
+    valueColor: Color,
+    animateOnEnter: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -216,10 +228,11 @@ private fun CenteredMetricRow(
                 maxLines = 1
             )
             Spacer(modifier = Modifier.height(2.dp))
-            AnimatedMetricValue(
-                value = value,
-                color = valueColor,
-                fontSize = 22.sp
+                AnimatedMetricValue(
+                    value = value,
+                    color = valueColor,
+                    fontSize = 22.sp,
+                    animateOnEnter = animateOnEnter
             )
         }
         Box(
@@ -249,7 +262,8 @@ private fun GridRow(
     rightIcon: @Composable () -> Unit,
     rightLabel: String,
     rightValue: String,
-    rightValueColor: Color
+    rightValueColor: Color,
+    animateOnEnter: Boolean
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -274,7 +288,8 @@ private fun GridRow(
                 AnimatedMetricValue(
                     value = leftValue,
                     color = leftValueColor,
-                    fontSize = 22.sp
+                    fontSize = 22.sp,
+                    animateOnEnter = animateOnEnter
                 )
             }
         }
@@ -300,7 +315,8 @@ private fun GridRow(
                 AnimatedMetricValue(
                     value = rightValue,
                     color = rightValueColor,
-                    fontSize = 22.sp
+                    fontSize = 22.sp,
+                    animateOnEnter = animateOnEnter
                 )
             }
         }
@@ -311,13 +327,32 @@ private fun GridRow(
 private fun AnimatedMetricValue(
     value: String,
     color: Color,
-    fontSize: androidx.compose.ui.unit.TextUnit
+    fontSize: androidx.compose.ui.unit.TextUnit,
+    animateOnEnter: Boolean
 ) {
+    val entranceValue = remember { Animatable(0f) }
+    var entranceAnimationFinished by remember {
+        mutableStateOf(!animateOnEnter || value == "---" || value.isBlank())
+    }
+    LaunchedEffect(animateOnEnter) {
+        if (animateOnEnter && value != "---" && value.isNotBlank()) {
+            entranceValue.animateTo(
+                targetValue = metricTextToLong(value).toFloat(),
+                animationSpec = tween(durationMillis = 500)
+            )
+            entranceAnimationFinished = true
+        }
+    }
     val animatedValue = animatedMetricNumber(metricTextToLong(value))
-    val displayValue = if (value == "---" && animatedValue == 0L) {
+    val visibleValue = if (animateOnEnter && !entranceAnimationFinished) {
+        entranceValue.value.toLong()
+    } else {
+        animatedValue
+    }
+    val displayValue = if (value == "---" && visibleValue == 0L) {
         "---"
     } else {
-        formatMetricNumber(roundMetricToHundred(animatedValue))
+        formatMetricNumber(roundMetricToHundred(visibleValue))
     }
     Text(
         text = displayValue,

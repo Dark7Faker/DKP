@@ -16,6 +16,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Flag
@@ -23,6 +25,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dkpace.ui.theme.ArcadeColors
 import com.example.dkpace.R
+import kotlin.math.roundToLong
 
 data class LevelMetrics(
     val score: String = "",
@@ -78,6 +82,7 @@ fun MetricCardsRow(
             value = score,
             maxDigits = 7,
             animationLevel = currentLevel,
+            animateOnEnter = true,
             shortcut = MetricShortcut.SCORE,
             onValueChange = onScoreChange,
             onFocusChanged = onInputFocusChanged,
@@ -102,6 +107,7 @@ fun MetricCardsRow(
             value = bonus,
             maxDigits = 5,
             animationLevel = currentLevel,
+            animateOnEnter = true,
             shortcut = MetricShortcut.BONUS_OR_DEATH,
             onValueChange = onBonusChange,
             onFocusChanged = onInputFocusChanged,
@@ -126,6 +132,7 @@ fun MetricCardsRow(
             value = death,
             maxDigits = 5,
             animationLevel = currentLevel,
+            animateOnEnter = true,
             shortcut = MetricShortcut.BONUS_OR_DEATH,
             onValueChange = onDeathChange,
             onFocusChanged = onInputFocusChanged,
@@ -147,6 +154,7 @@ fun MetricCardsRow(
             modifier = Modifier.weight(1f).height(80.dp),
             currentLevel = currentLevel,
             compact = true,
+            animateTextFromZeroOnEnter = true,
         )
     }
 }
@@ -286,6 +294,7 @@ fun GoalMetricCard(
         inputTextColor = ArcadeColors.GoldAccent,
         compact = true,
         restorePreviousOnEmpty = false,
+        animateOnEnter = true,
         icon = {
             Icon(
                 imageVector = Icons.Default.Flag,
@@ -314,16 +323,33 @@ private fun SingleMetricCard(
     restorePreviousOnEmpty: Boolean = true,
     compact: Boolean = false,
     zeroAsEmpty: Boolean = false,
+    animateOnEnter: Boolean = false,
     icon: @Composable () -> Unit
 ) {
     var wasFocused by remember { mutableStateOf(false) }
     var isFocused by remember { mutableStateOf(false) }
+    var wasEdited by remember { mutableStateOf(false) }
     var previousValue by remember { mutableStateOf("") }
     val numericValue = metricTextToLong(value)
+    val entranceAnimation = remember { Animatable(0f) }
+    var entranceAnimationFinished by remember {
+        mutableStateOf(!animateOnEnter || value.isBlank())
+    }
+    LaunchedEffect(animateOnEnter) {
+        if (animateOnEnter && value.isNotBlank()) {
+            entranceAnimation.animateTo(
+                targetValue = numericValue.toFloat(),
+                animationSpec = tween(durationMillis = 500)
+            )
+            entranceAnimationFinished = true
+        }
+    }
     val animatedValue = animationLevel?.let {
         animatedMetricNumberOnLevelChange(numericValue, it)
     } ?: numericValue
-    val displayedValue = if (isFocused) {
+    val displayedValue = if (animateOnEnter && !entranceAnimationFinished && !isFocused && !wasEdited) {
+        formatMetricNumber(roundMetricToHundred(entranceAnimation.value.roundToLong()))
+    } else if (isFocused) {
         value
     } else if (value.isBlank() && animatedValue == 0L) {
         ""
@@ -413,6 +439,7 @@ private fun SingleMetricCard(
                             onFocusChanged(focusState.isFocused)
                             if (focusState.isFocused && !wasFocused) {
                                 wasFocused = true
+                                wasEdited = true
                                 previousValue = value
                                 onValueChange("")
                             } else if (!focusState.isFocused && wasFocused) {
