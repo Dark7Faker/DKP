@@ -18,6 +18,9 @@ import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -86,6 +89,11 @@ fun CurrentLevelCard(
             )
             if (compact) {
                 val levelProgress = (14f + (currentLevel - 4).coerceIn(0, 17) * 6f) / 117f
+                val animatedLevelProgress by animateFloatAsState(
+                    targetValue = levelProgress,
+                    animationSpec = tween(durationMillis = 500),
+                    label = "level-progress"
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Box(
                     modifier = Modifier
@@ -96,7 +104,7 @@ fun CurrentLevelCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth(levelProgress)
+                        .fillMaxWidth(animatedLevelProgress)
                             .height(5.dp)
                             .clip(RoundedCornerShape(50))
                             .background(ArcadeColors.CyanPrimary)

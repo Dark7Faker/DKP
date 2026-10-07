@@ -33,6 +33,8 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -601,6 +603,11 @@ private fun SaveRunSummaryItem(
     valueFontSize: TextUnit? = null,
     progress: Float? = null
 ) {
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress ?: 0f,
+        animationSpec = tween(durationMillis = 500),
+        label = "save-run-level-progress"
+    )
     Column(
         modifier = modifier
             .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(9.dp))
@@ -644,7 +651,7 @@ private fun SaveRunSummaryItem(
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth(progress.coerceIn(0f, 1f))
+                        .fillMaxWidth(animatedProgress.coerceIn(0f, 1f))
                         .height(5.dp)
                         .clip(RoundedCornerShape(50))
                         .background(ArcadeColors.CyanPrimary)
