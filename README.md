@@ -4,9 +4,9 @@ DKP is an Android app for recording and analyzing runs of the original Donkey Ko
 
 ## Features
 
-- Enter score, bonus, and deaths for each level; select levels 4 through 21.
-- Automatically calculate pace, current average, needed average, and progress values.
-- Use a battery saver mode that dims the screen.
+- Enter score, bonus, and deaths for each level manually by selecting levels 4 through 21.
+- Automatically calculate pace, current average, needed average based on goal, and progress values.
+- Use a battery saver mode that dims the screen while playing.
 - View the pace history in an interactive chart and select levels directly from the chart.
 - Save, review, edit, delete, and sort runs by date, name, score, pace, or level.
 - Compare personal bests in the PB Improvement chart.
