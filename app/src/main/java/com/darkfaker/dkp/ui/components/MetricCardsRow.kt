@@ -341,7 +341,7 @@ private fun SingleMetricCard(
         if (animateOnEnter && value.isNotBlank()) {
             entranceAnimation.animateTo(
                 targetValue = numericValue.toFloat(),
-                animationSpec = tween(durationMillis = 500)
+                animationSpec = tween(durationMillis = 281)
             )
             entranceAnimationFinished = true
         }

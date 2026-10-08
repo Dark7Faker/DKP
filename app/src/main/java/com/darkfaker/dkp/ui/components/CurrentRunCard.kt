@@ -338,7 +338,7 @@ private fun AnimatedMetricValue(
         if (animateOnEnter && value != "---" && value.isNotBlank()) {
             entranceValue.animateTo(
                 targetValue = metricTextToLong(value).toFloat(),
-                animationSpec = tween(durationMillis = 500)
+                animationSpec = tween(durationMillis = 281)
             )
             entranceAnimationFinished = true
         }
