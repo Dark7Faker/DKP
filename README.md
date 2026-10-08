@@ -1,6 +1,6 @@
 # DKP
 
-DKP is an Android app for analyzing runs of the original Donkey Kong Arcade game by manually entering level statistics.
+DKP is an Android app for analyzing runs of the original Donkey Kong Arcade game by manually entering level data.
 
 ## Features
 
