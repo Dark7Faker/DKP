@@ -11,6 +11,10 @@ DKP is an Android app for analyzing runs of the original Donkey Kong Arcade game
 - Save, review, edit, delete, and sort runs by date, name, score, pace, or level.
 - Compare personal bests in the PB Improvement chart.
 
+## How to Use
+
+See the [How to Use guide](How%20to%20use.md) for instructions on using the app.
+
 ## Data and Network Usage
 
 The app only accesses data you enter, such as run details and app settings. It does not access other personal data on your device, such as contacts, photos, or files. Run data and settings are stored locally on the device, and the app does not transmit data over the network. The app code makes no network requests and does not request internet access. Depending on device settings, Android may still back up app data. 
