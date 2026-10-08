@@ -21,6 +21,12 @@ DKP is an independent companion app and is not affiliated with, endorsed, or spo
 
 The app is not intended to copy or reproduce any Donkey Kong game features. Its purpose is to provide players with an independent mathematical framework for tracking and analyzing their play, based solely on their own manual entries.
 
+## Install
+
+1. On your Android phone, open the [latest GitHub release](https://github.com/Superflo187/DKPace/releases/latest) and download the APK asset.
+2. Open the downloaded APK and follow Android's installation prompts. Android may ask you to allow your browser or file manager to install apps from that source.
+3. Google Play Protect may show an unfamiliar-app warning because DKP is installed directly from a release APK by an unknown developer rather than through Google Play. This warning alone does not necessarily mean that Play Protect has identified the app as harmful. If Play Protect offers to scan the APK, you can choose to scan it and review the result before proceeding.
+
 ## Requirements
 
 - Android Studio with the Android SDK for API 37
