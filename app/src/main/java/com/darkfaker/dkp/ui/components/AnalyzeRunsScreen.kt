@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.darkfaker.dkp.ui.theme.ArcadeColors
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 data class SavedRun(
@@ -360,5 +359,5 @@ private fun RunMetric(
 private fun String.toSortNumber(): Long = filter { it.isDigit() || it == '-' }.toLongOrNull() ?: Long.MIN_VALUE
 
 private fun String.toDisplayDate(): String = runCatching {
-    LocalDate.parse(this).format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ROOT))
+    formatDeviceDate(LocalDate.parse(this))
 }.getOrDefault(this)

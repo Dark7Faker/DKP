@@ -17,7 +17,7 @@ See the [How to Use guide](How%20to%20use.md) for instructions on using the app.
 
 ## Data and Network Usage
 
-The app only accesses data you enter, such as run details and app settings. It does not access other personal data on your device, such as contacts, photos, or files. Run data and settings are stored locally on the device, and the app does not transmit data over the network. The app code makes no network requests and does not request internet access. Depending on device settings, Android may still back up app data. 
+The app only accesses data you enter, such as run details and app settings. It also uses the locale and time zone to format dates. The App does not access other personal data on your device, such as contacts, photos, or files. Run data and settings are stored locally on the device, and the app does not transmit data over the network. The app code makes no network requests and does not request internet access. Depending on device settings, Android may still back up app data. 
 
 ## Independence from Donkey Kong
 

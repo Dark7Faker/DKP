@@ -63,7 +63,6 @@ import com.darkfaker.dkp.ui.theme.ArcadeColors
 import java.util.Locale
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun SaveRunMenu(
@@ -138,7 +137,7 @@ fun SaveRunMenu(
             Spacer(Modifier.height(14.dp))
 
             SaveRunDateItem(
-                date = selectedDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                date = formatDeviceDate(selectedDate),
                 onClick = {
                     DatePickerDialog(
                         ContextThemeWrapper(context, R.style.DatePickerDialogTheme),

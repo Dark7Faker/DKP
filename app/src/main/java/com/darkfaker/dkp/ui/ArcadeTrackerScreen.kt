@@ -77,6 +77,7 @@ import com.darkfaker.dkp.ui.components.PersonalBestChart
 import com.darkfaker.dkp.ui.components.PersonalBestPoint
 import com.darkfaker.dkp.ui.components.SaveRunDisplayCard
 import com.darkfaker.dkp.ui.components.SaveRunMenu
+import com.darkfaker.dkp.ui.components.formatDeviceDate
 import com.darkfaker.dkp.ui.theme.ArcadeColors
 import com.darkfaker.dkp.R
 import kotlin.math.roundToLong
@@ -84,7 +85,7 @@ import kotlin.math.abs
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.time.ZoneId
 import java.util.Locale
 
 @Composable
@@ -523,8 +524,7 @@ fun ArcadeTrackerScreen() {
                         runStartMetrics.score.isNotBlank() || runStartMetrics.bonus.isNotBlank()
                     ) runStart.roundToHundred().formatMetric() else "---"
                     val runStatisticDate = runCatching {
-                        LocalDate.parse(runDetails.date)
-                            .format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ROOT))
+                        formatDeviceDate(LocalDate.parse(runDetails.date))
                     }.getOrDefault(runDetails.date)
                     val runScoreExists = runCurrentMetrics.score.isNotBlank()
                     val runPaceValue = if (runLevel == 4 || !runScoreExists) null else {
@@ -636,7 +636,7 @@ fun ArcadeTrackerScreen() {
                         onDateClick = {
                             focusManager.clearFocus()
                             val currentDate = runCatching { LocalDate.parse(runDetails.date) }
-                                .getOrDefault(LocalDate.now())
+                                .getOrDefault(LocalDate.now(ZoneId.systemDefault()))
                             DatePickerDialog(
                                 ContextThemeWrapper(context, R.style.DatePickerDialogTheme),
                                 { _, year, month, day ->
@@ -978,7 +978,7 @@ fun ArcadeTrackerScreen() {
                     },
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 16.dp),
                     title = "SAVE RUN",
-                    initialDate = LocalDate.now()
+                    initialDate = LocalDate.now(ZoneId.systemDefault())
                 )
             }
         }
