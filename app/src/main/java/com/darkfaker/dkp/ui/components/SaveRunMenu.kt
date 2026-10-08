@@ -130,7 +130,8 @@ fun SaveRunMenu(
                     modifier = Modifier.weight(0.85f),
                     initialScore = score,
                     onScoreChange = { editedScore = it },
-                    animateOnEnter = true
+                    animateOnEnter = true,
+                    endLevel = level
                 )
             }
 
@@ -300,7 +301,8 @@ fun SaveRunDisplayCard(
                     modifier = Modifier.weight(0.85f),
                     initialScore = initialScore,
                     onScoreChange = onScoreChange,
-                    animateOnEnter = true
+                    animateOnEnter = true,
+                    endLevel = level
                 )
             }
             Spacer(Modifier.height(14.dp))
@@ -446,7 +448,8 @@ private fun SaveRunScoreInput(
     modifier: Modifier,
     initialScore: String,
     onScoreChange: (String) -> Unit,
-    animateOnEnter: Boolean = false
+    animateOnEnter: Boolean = false,
+    endLevel: Int? = null
 ) {
     var score by remember(initialScore) { mutableStateOf(initialScore) }
     var previousScore by remember(initialScore) { mutableStateOf(initialScore) }
@@ -548,7 +551,7 @@ private fun SaveRunScoreInput(
                             score = if (score.isBlank()) {
                                 previousScore
                             } else {
-                                formatSaveRunScore(score)
+                                formatSaveRunScore(score, endLevel)
                             }
                             onScoreChange(score)
                         }
@@ -558,9 +561,13 @@ private fun SaveRunScoreInput(
     }
 }
 
-private fun formatSaveRunScore(value: String): String {
+private fun formatSaveRunScore(value: String, endLevel: Int?): String {
     val digits = value.filter(Char::isDigit)
-    val expandedDigits = if (digits.length == 4) "${digits}00" else digits
+    val expandedDigits = when {
+        digits.length == 4 -> "${digits}00"
+        digits.length == 5 && endLevel != null && endLevel >= 15 -> "${digits}00"
+        else -> digits
+    }
     val rounded = expandedDigits.toLongOrNull()?.let { ((it + 50) / 100) * 100 } ?: return ""
     return rounded.toString().reversed().chunked(3).joinToString(".").reversed()
 }

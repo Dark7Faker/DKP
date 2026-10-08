@@ -430,7 +430,7 @@ private fun SingleMetricCard(
                     ),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            onValueChange(formatMetric(value, shortcut, zeroAsEmpty))
+                            onValueChange(formatMetric(value, shortcut, zeroAsEmpty, animationLevel))
                             focusManager.clearFocus()
                         }
                     ),
@@ -449,7 +449,7 @@ private fun SingleMetricCard(
                                 if (restorePreviousOnEmpty && value.isBlank() && previousValue.isNotBlank()) {
                                     onValueChange(previousValue)
                                 } else {
-                                    onValueChange(formatMetric(value, shortcut, zeroAsEmpty))
+                                    onValueChange(formatMetric(value, shortcut, zeroAsEmpty, animationLevel))
                                 }
                             }
                         },
@@ -468,12 +468,17 @@ private fun SingleMetricCard(
 private fun formatMetric(
     value: String,
     shortcut: MetricShortcut,
-    zeroAsEmpty: Boolean = false
+    zeroAsEmpty: Boolean = false,
+    currentLevel: Int? = null
 ): String {
     val digits = value.filter(Char::isDigit)
     if (zeroAsEmpty && digits.toLongOrNull() == 0L) return ""
     val expandedDigits = when (shortcut) {
-        MetricShortcut.SCORE -> if (digits.length == 4) "${digits}00" else digits
+        MetricShortcut.SCORE -> when {
+            digits.length == 4 -> "${digits}00"
+            digits.length == 5 && currentLevel != null && currentLevel >= 15 -> "${digits}00"
+            else -> digits
+        }
         MetricShortcut.BONUS_OR_DEATH -> if (digits.length in 1..2) "${digits}00" else digits
         MetricShortcut.NONE -> digits
     }
