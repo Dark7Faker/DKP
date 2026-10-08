@@ -1,6 +1,6 @@
 # DKP
 
-DKP is an Android app for recording and analyzing runs of the original Donkey Kong Arcade game.
+DKP is an Android app for analyzing runs of the original Donkey Kong Arcade game by manually entering level statistics.
 
 ## Features
 
@@ -14,6 +14,12 @@ DKP is an Android app for recording and analyzing runs of the original Donkey Ko
 ## Data and Network Usage
 
 The app only accesses data you enter, such as run details and app settings. It does not access other personal data on your device, such as contacts, photos, or files. Run data and settings are stored locally on the device, and the app does not transmit data over the network. The app code makes no network requests and does not request internet access. Depending on device settings, Android may still back up app data. 
+
+## Independence from Donkey Kong
+
+DKP is an independent companion app and is not affiliated with, endorsed, or sponsored by Nintendo. It does not connect to the Donkey Kong game or read, import, or collect data from it. Players must enter all scores and run statistics manually; the app only calculates and displays information provided by the player.
+
+The app is not intended to copy or reproduce any Donkey Kong game features. Its purpose is to provide players with an independent mathematical framework for tracking and analyzing their play, based solely on their own manual entries.
 
 ## Requirements
 
