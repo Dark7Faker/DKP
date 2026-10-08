@@ -460,7 +460,7 @@ private fun SaveRunScoreInput(
         if (animateOnEnter && initialScore.isNotBlank() && initialScore != "---") {
             animatedScore.animateTo(
                 targetValue = metricTextToLong(initialScore).toFloat(),
-                animationSpec = tween(durationMillis = 500)
+                animationSpec = tween(durationMillis = 281)
             )
             entranceAnimationFinished = true
         }
@@ -670,7 +670,7 @@ private fun SaveRunSummaryItem(
         if (animateOnEnter && value.isNotBlank() && value != "---") {
             animatedValue.animateTo(
                 targetValue = metricTextToLong(value).toFloat(),
-                animationSpec = tween(durationMillis = 500)
+                animationSpec = tween(durationMillis = 281)
             )
             entranceAnimationFinished = true
         }

@@ -15,7 +15,7 @@ import kotlin.math.roundToLong
 internal fun animatedMetricNumber(target: Long): Long {
     val animatedValue by animateFloatAsState(
         targetValue = target.toFloat(),
-        animationSpec = tween(durationMillis = 500),
+        animationSpec = tween(durationMillis = 281),
         label = "metric-count"
     )
     return animatedValue.roundToLong()
@@ -31,7 +31,7 @@ internal fun animatedMetricNumberOnLevelChange(target: Long, level: Int): Long {
             previousLevel = level
             animatedValue.animateTo(
                 targetValue = target.toFloat(),
-                animationSpec = tween(durationMillis = 500)
+                animationSpec = tween(durationMillis = 281)
             )
         } else {
             animatedValue.snapTo(target.toFloat())

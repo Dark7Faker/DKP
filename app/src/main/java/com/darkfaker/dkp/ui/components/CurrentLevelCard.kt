@@ -44,7 +44,7 @@ fun CurrentLevelCard(
         LaunchedEffect(currentLevel) {
             entranceLevel.animateTo(
                 targetValue = currentLevel.toFloat(),
-                animationSpec = tween(durationMillis = 500)
+                animationSpec = tween(durationMillis = 281)
             )
         }
         entranceLevel.value.roundToInt()

@@ -80,7 +80,7 @@ fun PaceChartCard(
         if (animateDeathpointsOnEnter) {
             deathpointsEntrance.animateTo(
                 targetValue = deathpoints.toFloat(),
-                animationSpec = tween(durationMillis = 500)
+                animationSpec = tween(durationMillis = 281)
             )
             deathpointsEntranceFinished = true
         }
