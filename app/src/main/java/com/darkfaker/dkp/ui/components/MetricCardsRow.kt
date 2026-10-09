@@ -106,7 +106,7 @@ fun MetricCardsRow(
             modifier = Modifier.weight(0.75f).height(80.dp),
             label = "BONUS",
             value = bonus,
-            maxDigits = 5,
+            maxDigits = 4,
             animationLevel = currentLevel,
             animateOnEnter = animateOnEnter,
             shortcut = MetricShortcut.BONUS_OR_DEATH,
