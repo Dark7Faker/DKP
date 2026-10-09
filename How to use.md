@@ -17,7 +17,7 @@ DKP helps you track your pace in the original Donkey Kong Arcade game live durin
 This view lets you enter level results as you play and track how you are performing now and over time.
 
 1. **Goal:** Enter or change your target score before or during a run. A goal is optional, but some statistics compare your performance against it. If you have a specific target in mind, entering it is recommended.
-2. **Level Results:** At the end of each level, enter your score. Ff the score does not already include the bonus from the level’s final board, enter that bonus separately. If the bonus was zero—or is already included in your score—leave the Bonus field blank. 
+2. **Level Results:** At the end of each level, enter your score. If the score does not already include the bonus from the level’s final board, enter that bonus separately. If the bonus was zero—or is already included in your score—leave the Bonus field blank. 
     
     If you died during the level, enter an estimated death point value, including zero if there were none. Death points affect the pace calculation for the current level, but not the calculations for past or future levels. Entering an estimated death point value can make the current score prediction more accurate, but it is optional.
     
@@ -35,7 +35,7 @@ This view lets you enter level results as you play and track how you are perform
     - Current average shows your average points per level across all levels played in this run.
     - Next Level - Current estimates your score at the end of the next level if you maintain your current pace.
     - Needed Average shows the average points per level you need for the remaining levels to reach your goal.
-    - Next Level - Needed shows the score you need at the end of the next level to stay on track for that average
+    - Next Level - Needed shows the score you need at the end of the next level to stay on track for that average.
     
     A field shows “- - -” when a value cannot be calculated for the current level or when required inputs are missing or incorrect. 
     

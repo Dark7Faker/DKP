@@ -13,7 +13,7 @@ DKP is an Android app for analyzing runs of the original Donkey Kong Arcade game
 
 ## How to Use
 
-See the [How to Use guide](How%20to%20use.md) for instructions on using the app.
+See the [How to Use guide](https://darkfaker.notion.site/dkp-howtouse) for instructions on using the app.
 
 ## Data and Network Usage
 
