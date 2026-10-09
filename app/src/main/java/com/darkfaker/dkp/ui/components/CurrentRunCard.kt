@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -277,13 +278,7 @@ private fun GridRow(
             leftIcon()
             Spacer(modifier = Modifier.width(10.dp))
             Column {
-                Text(
-                    text = leftLabel,
-                    color = ArcadeColors.TextSecondary,
-                    fontSize = 9.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.5.sp
-                )
+                ResponsiveMetricLabel(leftLabel)
                 Spacer(modifier = Modifier.height(2.dp))
                 AnimatedMetricValue(
                     value = leftValue,
@@ -304,13 +299,7 @@ private fun GridRow(
             rightIcon()
             Spacer(modifier = Modifier.width(10.dp))
             Column {
-                Text(
-                    text = rightLabel,
-                    color = ArcadeColors.TextSecondary,
-                    fontSize = 9.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.5.sp
-                )
+                ResponsiveMetricLabel(rightLabel)
                 Spacer(modifier = Modifier.height(2.dp))
                 AnimatedMetricValue(
                     value = rightValue,
@@ -320,6 +309,21 @@ private fun GridRow(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ResponsiveMetricLabel(label: String) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            color = ArcadeColors.TextSecondary,
+            fontSize = if (maxWidth < 140.dp) 8.sp else 9.5.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = if (maxWidth < 140.dp) 0.25.sp else 0.5.sp,
+            maxLines = 1,
+            softWrap = false
+        )
     }
 }
 

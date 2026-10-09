@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -302,22 +303,26 @@ private fun SavedRunCard(
             )
         }
         Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            metricOrder(sort).forEach { metric ->
-                when (metric) {
-                    RunMetricType.AVERAGE -> RunMetric(
-                        "AVERAGE", run.average, Icons.Default.Balance,
-                        if (run.averageIsRed) ArcadeColors.RedAccent else ArcadeColors.GreenAccent,
-                        Modifier.weight(1.05f)
-                    )
-                    RunMetricType.LEVEL -> RunMetric(
-                        "LEVEL", run.level?.let { String.format(Locale.ROOT, "L = %02d", it) } ?: "---",
-                        Icons.Default.Adjust, ArcadeColors.CyanPrimary, Modifier.weight(0.9f)
-                    )
-                    RunMetricType.PACE -> RunMetric(
-                        "PACE", run.pace, Icons.Default.EmojiEvents,
-                        Color.White, Modifier.weight(1.05f)
-                    )
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val compactMetrics = maxWidth < 320.dp
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                metricOrder(sort).forEach { metric ->
+                    when (metric) {
+                        RunMetricType.AVERAGE -> RunMetric(
+                            "AVERAGE", run.average, Icons.Default.Balance,
+                            if (run.averageIsRed) ArcadeColors.RedAccent else ArcadeColors.GreenAccent,
+                            Modifier.weight(1.05f), compact = compactMetrics
+                        )
+                        RunMetricType.LEVEL -> RunMetric(
+                            "LEVEL", run.level?.let { String.format(Locale.ROOT, "L = %02d", it) } ?: "---",
+                            Icons.Default.Adjust, ArcadeColors.CyanPrimary, Modifier.weight(0.9f),
+                            compact = compactMetrics
+                        )
+                        RunMetricType.PACE -> RunMetric(
+                            "PACE", run.pace, Icons.Default.EmojiEvents,
+                            Color.White, Modifier.weight(1.05f), compact = compactMetrics
+                        )
+                    }
                 }
             }
         }
@@ -331,23 +336,24 @@ private fun RunMetric(
     icon: ImageVector,
     color: Color,
     modifier: Modifier,
-    labelColor: Color = color
+    labelColor: Color = color,
+    compact: Boolean = false
 ) {
     Row(
         modifier = modifier
             .background(ArcadeColors.InnerBoxBackground, RoundedCornerShape(9.dp))
             .border(1.dp, color, RoundedCornerShape(9.dp))
-            .padding(horizontal = 4.dp, vertical = 4.dp),
+            .padding(horizontal = if (compact) 3.dp else 4.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
+        horizontalArrangement = Arrangement.spacedBy(if (compact) 1.dp else 2.dp)
     ) {
-        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(13.dp))
-        Text(label, color = labelColor, fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(if (compact) 11.dp else 13.dp))
+        Text(label, color = labelColor, fontSize = if (compact) 8.sp else 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
         Text(
             value,
             modifier = Modifier.weight(1f),
             color = color,
-            fontSize = 10.sp,
+            fontSize = if (compact) 8.sp else 10.sp,
             fontWeight = FontWeight.ExtraBold,
             maxLines = 1,
             textAlign = TextAlign.End,
