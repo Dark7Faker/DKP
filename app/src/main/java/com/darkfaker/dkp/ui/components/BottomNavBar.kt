@@ -31,10 +31,10 @@ fun BottomNavBar(
 ) {
     Row(
         modifier = modifier
-            .background(ArcadeColors.CardBackground, RoundedCornerShape(16.dp))
-            .border(1.dp, ArcadeColors.CyanBorder, RoundedCornerShape(16.dp))
-            .padding(horizontal = 5.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+            .background(ArcadeColors.CardBackground, RoundedCornerShape(19.dp))
+            .border(1.2.dp, ArcadeColors.CyanBorder, RoundedCornerShape(19.dp))
+            .padding(horizontal = 6.dp, vertical = 5.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         NavIcon(
@@ -67,11 +67,7 @@ private fun NavIcon(
 ) {
     Box(
         modifier = Modifier
-            .size(42.dp)
-            .background(
-                color = if (selected) Color(0xFF0A1B30) else Color.Transparent,
-                shape = RoundedCornerShape(12.dp)
-            )
+            .size(50.dp)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -79,7 +75,7 @@ private fun NavIcon(
             imageVector = icon,
             contentDescription = description,
             tint = if (selected) ArcadeColors.CyanPrimary else Color.White,
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier.size(26.dp)
         )
     }
 }

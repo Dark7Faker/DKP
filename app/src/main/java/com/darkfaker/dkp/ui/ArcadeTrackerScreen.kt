@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
+import android.net.Uri
 import android.view.ContextThemeWrapper
 import android.view.WindowManager
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -32,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Battery2Bar
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -39,6 +42,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -59,6 +63,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
 import com.darkfaker.dkp.ui.components.ActionButtonsColumn
 import com.darkfaker.dkp.ui.components.CurrentRunCard
@@ -125,6 +130,14 @@ fun ArcadeTrackerScreen() {
     }
     var currentLevel by remember { mutableIntStateOf(4) }
     var batterySaverEnabled by remember { mutableStateOf(false) }
+    var navigationBarDisabled by remember {
+        mutableStateOf(preferences.getBoolean("navigation_bar_disabled", false))
+    }
+    var inputShortcutsDisabled by remember {
+        mutableStateOf(preferences.getBoolean("input_shortcuts_disabled", false))
+    }
+    var deleteConfirmationType by remember { mutableStateOf<DeleteConfirmationType?>(null) }
+    var runPendingDeletion by remember { mutableStateOf<SavedRun?>(null) }
     var inputFieldFocused by remember { mutableStateOf(false) }
     var saveRunMenuVisible by remember { mutableStateOf(false) }
     var editingRunIndex by remember { mutableIntStateOf(-1) }
@@ -621,17 +634,8 @@ fun ArcadeTrackerScreen() {
                             },
                             onResetRun = {
                                 focusManager.clearFocus()
-                                val latestSelectedRun = selectedRun?.let { selected ->
-                                    savedRuns.firstOrNull { it == selected }
-                                } ?: runDetails
-                                val deleteIndex = savedRuns.indexOf(latestSelectedRun)
-                                if (deleteIndex >= 0) {
-                                    val updatedRuns = savedRuns.filterIndexed { index, _ -> index != deleteIndex }
-                                    savedRuns = updatedRuns
-                                    preferences.edit { putString("saved_runs", saveRunsJson(updatedRuns)) }
-                                }
-                                selectedRun = null
-                                selectedPersonalBestRun = null
+                                runPendingDeletion = selectedRun ?: runDetails
+                                deleteConfirmationType = DeleteConfirmationType.SAVED_RUN
                             }
                         )
                     }
@@ -670,7 +674,8 @@ fun ArcadeTrackerScreen() {
                             (runMetrics.isEmpty() && runDetails.averageIsRed) ||
                                 (runEndPaceValue != null && runDetails.goal.isNotBlank() &&
                                     runEndPaceValue.roundToHundred() < runDetails.goal.toMetricLong())
-                        ) ArcadeColors.RedAccent else ArcadeColors.GreenAccent
+                        ) ArcadeColors.RedAccent else ArcadeColors.GreenAccent,
+                        inputShortcutsEnabled = !inputShortcutsDisabled
                     )
                     PaceChartCard(
                         points = runPoints,
@@ -822,6 +827,64 @@ fun ArcadeTrackerScreen() {
                     titleIcon = Icons.Default.Settings,
                     showBatterySaver = false
                 )
+                SettingsToggleRow(
+                    label = "Swipe Navigation Only",
+                    checked = navigationBarDisabled,
+                    onCheckedChange = { enabled ->
+                        navigationBarDisabled = enabled
+                        preferences.edit { putBoolean("navigation_bar_disabled", enabled) }
+                    }
+                )
+                SettingsToggleRow(
+                    label = "Disable Input Shortcuts",
+                    checked = inputShortcutsDisabled,
+                    onCheckedChange = { enabled ->
+                        inputShortcutsDisabled = enabled
+                        preferences.edit { putBoolean("input_shortcuts_disabled", enabled) }
+                    }
+                )
+                SettingsLinkRow(
+                    label = "How To Use",
+                    onClick = {
+                        runCatching {
+                            context.startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://darkfaker.notion.site/dkp-how-to-use")
+                                )
+                            )
+                        }
+                    }
+                )
+                SettingsLinkRow(
+                    label = "Visit GitHub",
+                    onClick = {
+                        runCatching {
+                            context.startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://github.com/Dark7Faker/DKP")
+                                )
+                            )
+                        }
+                    }
+                )
+                SettingsLinkRow(
+                    label = "Privacy Policy",
+                    onClick = {
+                        runCatching {
+                            context.startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://darkfaker.notion.site/privacy-policy")
+                                )
+                            )
+                        }
+                    }
+                )
+                SettingsDeleteSavedDataButton(
+                    onClick = { deleteConfirmationType = DeleteConfirmationType.ALL_DATA }
+                )
             } else {
             // 1. Top Header
             HeaderSection(
@@ -901,6 +964,7 @@ fun ArcadeTrackerScreen() {
                 death = currentMetrics.death,
                 currentLevel = currentLevel,
                 animateOnEnter = trackerHasBeenOpened,
+                inputShortcutsEnabled = !inputShortcutsDisabled,
                 onScoreChange = {
                     metricsByLevel[currentLevel] =
                         (metricsByLevel[currentLevel] ?: LevelMetrics()).copy(score = it)
@@ -944,11 +1008,11 @@ fun ArcadeTrackerScreen() {
             Spacer(modifier = Modifier.height(8.dp))
             }
         }
-        if (!editingRunStatistics) {
+        if (!editingRunStatistics && !navigationBarDisabled) {
             BottomNavBar(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 10.dp),
+                    .padding(bottom = 18.dp),
                 selectedTab = when (selectedMenu) {
                     MainMenu.ANALYZE -> 0
                     MainMenu.TRACKER -> 1
@@ -1016,16 +1080,286 @@ fun ArcadeTrackerScreen() {
                     },
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 16.dp),
                     title = "SAVE RUN",
-                    initialDate = LocalDate.now(ZoneId.systemDefault())
+                    initialDate = LocalDate.now(ZoneId.systemDefault()),
+                    inputShortcutsEnabled = !inputShortcutsDisabled
                 )
+            }
+        }
+        val activeDeleteConfirmation = deleteConfirmationType
+        if (activeDeleteConfirmation != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.72f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        deleteConfirmationType = null
+                        runPendingDeletion = null
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .background(ArcadeColors.CardBackground, RoundedCornerShape(18.dp))
+                        .border(1.5.dp, ArcadeColors.RedAccent, RoundedCornerShape(18.dp))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { }
+                        .padding(18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = ArcadeColors.RedAccent,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(Modifier.size(8.dp))
+                        androidx.compose.material3.Text(
+                            text = if (activeDeleteConfirmation == DeleteConfirmationType.ALL_DATA) {
+                                "DELETE SAVED DATA"
+                            } else {
+                                "DELETE SAVED RUN"
+                            },
+                            color = ArcadeColors.RedAccent,
+                            fontSize = 13.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                    }
+                    Spacer(Modifier.height(18.dp))
+                    androidx.compose.material3.Text(
+                        text = if (activeDeleteConfirmation == DeleteConfirmationType.ALL_DATA) {
+                            "Do you want to delete all Saved Data?"
+                        } else {
+                            "Do you want to delete this Run?"
+                        },
+                        color = ArcadeColors.TextWhite,
+                        fontSize = 15.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        SavedDataDialogButton(
+                            modifier = Modifier.weight(1f),
+                            label = "CANCEL",
+                            icon = Icons.Default.Close,
+                            color = ArcadeColors.GreenAccent,
+                            outlined = true,
+                            onClick = {
+                                deleteConfirmationType = null
+                                runPendingDeletion = null
+                            }
+                        )
+                        SavedDataDialogButton(
+                            modifier = Modifier.weight(1f),
+                            label = "DELETE",
+                            icon = Icons.Default.Delete,
+                            color = ArcadeColors.RedAccent,
+                            onClick = {
+                                focusManager.clearFocus()
+                                if (activeDeleteConfirmation == DeleteConfirmationType.ALL_DATA) {
+                                    preferences.edit { clear() }
+                                    goal = ""
+                                    savedRuns = emptyList()
+                                    metricsByLevel.clear()
+                                    currentLevel = 4
+                                    navigationBarDisabled = false
+                                    inputShortcutsDisabled = false
+                                    saveRunName = ""
+                                    saveRunMenuVisible = false
+                                    selectedRun = null
+                                    selectedPersonalBestRun = null
+                                    showingPersonalBests = false
+                                    runSort = RunSort.DATE
+                                    editingRunIndex = -1
+                                    editingRunName = ""
+                                    editingRunDraftScore = ""
+                                    editingRunDraftDate = null
+                                    editingRunStatistics = false
+                                } else {
+                                    val runToDelete = runPendingDeletion
+                                    val deleteIndex = runToDelete?.let { savedRuns.indexOf(it) } ?: -1
+                                    if (deleteIndex >= 0) {
+                                        val updatedRuns = savedRuns.filterIndexed { index, _ -> index != deleteIndex }
+                                        savedRuns = updatedRuns
+                                        preferences.edit {
+                                            putString("saved_runs", saveRunsJson(updatedRuns))
+                                        }
+                                    }
+                                    selectedRun = null
+                                    selectedPersonalBestRun = null
+                                    runPendingDeletion = null
+                                }
+                                deleteConfirmationType = null
+                            }
+                        )
+                    }
+                }
             }
         }
     }
     }
 }
 
+private enum class DeleteConfirmationType { ALL_DATA, SAVED_RUN }
+
 private fun String.toMetricLong(): Long =
     filter(Char::isDigit).toLongOrNull()?.roundToHundred() ?: 0L
+
+@Composable
+private fun SettingsToggleRow(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(ArcadeColors.CardBackground, RoundedCornerShape(12.dp))
+            .border(1.dp, ArcadeColors.CyanBorder, RoundedCornerShape(12.dp))
+            .clickable { onCheckedChange(!checked) }
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(22.dp)
+                .background(
+                    if (checked) ArcadeColors.CyanPrimary.copy(alpha = 0.16f)
+                    else ArcadeColors.InnerBoxBackground,
+                    RoundedCornerShape(5.dp)
+                )
+                .border(1.5.dp, ArcadeColors.CyanBorder, RoundedCornerShape(5.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            if (checked) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Enabled",
+                    tint = ArcadeColors.CyanPrimary,
+                    modifier = Modifier.size(17.dp)
+                )
+            }
+        }
+        Spacer(Modifier.size(12.dp))
+        androidx.compose.material3.Text(
+            text = label,
+            color = ArcadeColors.TextWhite,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun SettingsLinkRow(
+    label: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(ArcadeColors.CardBackground, RoundedCornerShape(12.dp))
+            .border(1.dp, ArcadeColors.CyanBorder, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.OpenInNew,
+            contentDescription = null,
+            tint = ArcadeColors.CyanPrimary,
+            modifier = Modifier.size(22.dp)
+        )
+        androidx.compose.material3.Text(
+            text = label,
+            color = ArcadeColors.TextWhite,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun SettingsDeleteSavedDataButton(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(46.dp)
+            .background(ArcadeColors.RedAccent, RoundedCornerShape(12.dp))
+            .border(1.5.dp, ArcadeColors.RedAccent, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.Delete,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(Modifier.size(8.dp))
+        androidx.compose.material3.Text(
+            text = "DELETE SAVED DATA",
+            color = ArcadeColors.TextWhite,
+            fontSize = 13.sp,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            letterSpacing = 1.sp
+        )
+    }
+}
+
+@Composable
+private fun SavedDataDialogButton(
+    modifier: Modifier,
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: Color,
+    outlined: Boolean = false,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .height(48.dp)
+            .background(color, RoundedCornerShape(12.dp))
+            .then(
+                if (outlined) Modifier.border(1.5.dp, color, RoundedCornerShape(12.dp))
+                else Modifier
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            )
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.size(8.dp))
+        androidx.compose.material3.Text(
+            text = label,
+            color = Color.White,
+            fontSize = 13.sp,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            letterSpacing = 1.sp
+        )
+    }
+}
 
 private fun Long.formatMetric(): String {
     val value = roundToHundred().toString()

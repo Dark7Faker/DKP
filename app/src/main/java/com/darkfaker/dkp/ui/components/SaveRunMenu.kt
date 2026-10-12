@@ -78,7 +78,8 @@ fun SaveRunMenu(
     onSave: (score: String, date: LocalDate) -> Unit,
     modifier: Modifier = Modifier,
     title: String = "SAVE RUN",
-    initialDate: LocalDate = LocalDate.now(ZoneId.systemDefault())
+    initialDate: LocalDate = LocalDate.now(ZoneId.systemDefault()),
+    inputShortcutsEnabled: Boolean = true
 ) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -130,7 +131,8 @@ fun SaveRunMenu(
                     initialScore = score,
                     onScoreChange = { editedScore = it },
                     animateOnEnter = true,
-                    endLevel = level
+                    endLevel = level,
+                    shortcutsEnabled = inputShortcutsEnabled
                 )
             }
 
@@ -259,7 +261,8 @@ fun SaveRunDisplayCard(
     pace: String,
     average: String,
     averageColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    inputShortcutsEnabled: Boolean = true
 ) {
     val initialScore = remember { score }
     Box(
@@ -301,7 +304,8 @@ fun SaveRunDisplayCard(
                     initialScore = initialScore,
                     onScoreChange = onScoreChange,
                     animateOnEnter = true,
-                    endLevel = level
+                    endLevel = level,
+                    shortcutsEnabled = inputShortcutsEnabled
                 )
             }
             Spacer(Modifier.height(14.dp))
@@ -448,7 +452,8 @@ private fun SaveRunScoreInput(
     initialScore: String,
     onScoreChange: (String) -> Unit,
     animateOnEnter: Boolean = false,
-    endLevel: Int? = null
+    endLevel: Int? = null,
+    shortcutsEnabled: Boolean = true
 ) {
     var score by remember(initialScore) { mutableStateOf(initialScore) }
     var previousScore by remember(initialScore) { mutableStateOf(initialScore) }
@@ -550,7 +555,7 @@ private fun SaveRunScoreInput(
                             score = if (score.isBlank()) {
                                 previousScore
                             } else {
-                                formatSaveRunScore(score, endLevel)
+                                formatSaveRunScore(score, endLevel, shortcutsEnabled)
                             }
                             onScoreChange(score)
                         }
@@ -560,9 +565,9 @@ private fun SaveRunScoreInput(
     }
 }
 
-private fun formatSaveRunScore(value: String, endLevel: Int?): String {
+private fun formatSaveRunScore(value: String, endLevel: Int?, shortcutsEnabled: Boolean): String {
     val digits = value.filter(Char::isDigit)
-    val expandedDigits = when {
+    val expandedDigits = if (!shortcutsEnabled) digits else when {
         digits.length == 4 -> "${digits}00"
         digits.length == 5 && endLevel != null && endLevel >= 15 -> "${digits}00"
         else -> digits
