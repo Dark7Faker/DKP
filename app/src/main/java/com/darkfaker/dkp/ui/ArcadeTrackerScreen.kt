@@ -430,16 +430,23 @@ fun ArcadeTrackerScreen() {
                                 abs(totalHorizontalDrag) >= swipeThreshold
                             ) {
                                 focusManager.clearFocus()
-                                val menuOrder = listOf(MainMenu.ANALYZE, MainMenu.TRACKER, MainMenu.SETTINGS)
-                                val currentMenuIndex = menuOrder.indexOf(selectedMenu)
-                                val nextMenuIndex = (currentMenuIndex + if (totalHorizontalDrag > 0f) -1 else 1)
-                                    .coerceIn(menuOrder.indices)
-                                if (nextMenuIndex != currentMenuIndex) {
-                                    focusManager.clearFocus()
-                                    selectedMenu = menuOrder[nextMenuIndex]
+                                if (selectedMenu == MainMenu.ANALYZE && selectedRun != null &&
+                                    totalHorizontalDrag > 0f
+                                ) {
                                     selectedRun = null
                                     showingPersonalBests = false
                                     selectedPersonalBestRun = null
+                                } else {
+                                    val menuOrder = listOf(MainMenu.ANALYZE, MainMenu.TRACKER, MainMenu.SETTINGS)
+                                    val currentMenuIndex = menuOrder.indexOf(selectedMenu)
+                                    val nextMenuIndex = (currentMenuIndex + if (totalHorizontalDrag > 0f) -1 else 1)
+                                        .coerceIn(menuOrder.indices)
+                                    if (nextMenuIndex != currentMenuIndex) {
+                                        selectedMenu = menuOrder[nextMenuIndex]
+                                        selectedRun = null
+                                        showingPersonalBests = false
+                                        selectedPersonalBestRun = null
+                                    }
                                 }
                             }
                         }
@@ -821,6 +828,7 @@ fun ArcadeTrackerScreen() {
                         onRunClick = { selectedRun = it }
                     )
                 }
+                Spacer(Modifier.height(if (navigationBarDisabled) 8.dp else 90.dp))
             } else if (selectedMenu == MainMenu.SETTINGS) {
                 HeaderSection(
                     title = "SETTINGS",
