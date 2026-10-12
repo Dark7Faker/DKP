@@ -65,6 +65,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
+import androidx.core.net.toUri
 import com.darkfaker.dkp.ui.components.ActionButtonsColumn
 import com.darkfaker.dkp.ui.components.CurrentRunCard
 import com.darkfaker.dkp.ui.components.HeaderSection
@@ -859,6 +860,19 @@ fun ArcadeTrackerScreen() {
                                 Intent(
                                     Intent.ACTION_VIEW,
                                     Uri.parse("https://darkfaker.notion.site/dkp-how-to-use")
+                                )
+                            )
+                        }
+                    }
+                )
+                SettingsLinkRow(
+                    label = "Newest Release",
+                    onClick = {
+                        runCatching {
+                            context.startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    "https://github.com/Dark7Faker/DKP/releases".toUri()
                                 )
                             )
                         }
