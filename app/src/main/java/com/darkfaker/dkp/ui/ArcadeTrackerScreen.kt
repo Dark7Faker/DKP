@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
@@ -67,6 +68,7 @@ import com.darkfaker.dkp.ui.components.RunLevelMetricsRow
 import com.darkfaker.dkp.ui.components.GoalMetricCard
 import com.darkfaker.dkp.ui.components.LevelMetrics
 import com.darkfaker.dkp.ui.components.MainMenu
+import com.darkfaker.dkp.ui.components.BottomNavBar
 import com.darkfaker.dkp.ui.components.AnalyzeRunsScreen
 import com.darkfaker.dkp.ui.components.RunSort
 import com.darkfaker.dkp.ui.components.RunSortControl
@@ -415,10 +417,17 @@ fun ArcadeTrackerScreen() {
                                 abs(totalHorizontalDrag) >= swipeThreshold
                             ) {
                                 focusManager.clearFocus()
-                                selectedMenu = if (totalHorizontalDrag > 0f) MainMenu.ANALYZE else MainMenu.TRACKER
-                                selectedRun = null
-                                showingPersonalBests = false
-                                selectedPersonalBestRun = null
+                                val menuOrder = listOf(MainMenu.ANALYZE, MainMenu.TRACKER, MainMenu.SETTINGS)
+                                val currentMenuIndex = menuOrder.indexOf(selectedMenu)
+                                val nextMenuIndex = (currentMenuIndex + if (totalHorizontalDrag > 0f) -1 else 1)
+                                    .coerceIn(menuOrder.indices)
+                                if (nextMenuIndex != currentMenuIndex) {
+                                    focusManager.clearFocus()
+                                    selectedMenu = menuOrder[nextMenuIndex]
+                                    selectedRun = null
+                                    showingPersonalBests = false
+                                    selectedPersonalBestRun = null
+                                }
                             }
                         }
                     )
@@ -807,6 +816,12 @@ fun ArcadeTrackerScreen() {
                         onRunClick = { selectedRun = it }
                     )
                 }
+            } else if (selectedMenu == MainMenu.SETTINGS) {
+                HeaderSection(
+                    title = "SETTINGS",
+                    titleIcon = Icons.Default.Settings,
+                    showBatterySaver = false
+                )
             } else {
             // 1. Top Header
             HeaderSection(
@@ -928,6 +943,29 @@ fun ArcadeTrackerScreen() {
             // Bottom Spacer
             Spacer(modifier = Modifier.height(8.dp))
             }
+        }
+        if (!editingRunStatistics) {
+            BottomNavBar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 10.dp),
+                selectedTab = when (selectedMenu) {
+                    MainMenu.ANALYZE -> 0
+                    MainMenu.TRACKER -> 1
+                    MainMenu.SETTINGS -> 2
+                },
+                onTabSelected = { tab ->
+                    focusManager.clearFocus()
+                    selectedMenu = when (tab) {
+                        0 -> MainMenu.ANALYZE
+                        1 -> MainMenu.TRACKER
+                        else -> MainMenu.SETTINGS
+                    }
+                    selectedRun = null
+                    showingPersonalBests = false
+                    selectedPersonalBestRun = null
+                }
+            )
         }
         }
 

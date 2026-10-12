@@ -5,129 +5,81 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.darkfaker.dkp.ui.theme.ArcadeColors
 
+/** Compact bottom navigation for the tracker and saved-run views. */
 @Composable
 fun BottomNavBar(
     modifier: Modifier = Modifier,
-    selectedTab: Int = 0,
-    onTabSelected: (Int) -> Unit = {}
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit
 ) {
-    Box(
+    Row(
         modifier = modifier
-            .fillMaxWidth()
-            .background(
-                color = Color(0xFF061121),
-                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-            )
-            .border(
-                width = 1.dp,
-                color = ArcadeColors.BorderSubtle,
-                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-            )
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .background(ArcadeColors.CardBackground, RoundedCornerShape(16.dp))
+            .border(1.dp, ArcadeColors.CyanBorder, RoundedCornerShape(16.dp))
+            .padding(horizontal = 5.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            NavItem(
-                icon = Icons.Default.BarChart,
-                label = "Progress",
-                isSelected = selectedTab == 0,
-                onClick = { onTabSelected(0) }
-            )
-            NavItem(
-                icon = Icons.Default.GridView,
-                label = "Levels",
-                isSelected = selectedTab == 1,
-                onClick = { onTabSelected(1) }
-            )
-            NavItem(
-                icon = Icons.Default.Adjust,
-                label = "Goals",
-                isSelected = selectedTab == 2,
-                onClick = { onTabSelected(2) }
-            )
-            NavItem(
-                icon = Icons.Default.Settings,
-                label = "Settings",
-                isSelected = selectedTab == 3,
-                onClick = { onTabSelected(3) }
-            )
-        }
+        NavIcon(
+            icon = Icons.Default.Visibility,
+            description = "Analyze Runs",
+            selected = selectedTab == 0,
+            onClick = { onTabSelected(0) }
+        )
+        NavIcon(
+            icon = Icons.Default.BarChart,
+            description = "DK Pace Tracker",
+            selected = selectedTab == 1,
+            onClick = { onTabSelected(1) }
+        )
+        NavIcon(
+            icon = Icons.Default.Settings,
+            description = "Settings",
+            selected = selectedTab == 2,
+            onClick = { onTabSelected(2) }
+        )
     }
 }
 
 @Composable
-private fun NavItem(
+private fun NavIcon(
     icon: ImageVector,
-    label: String,
-    isSelected: Boolean,
+    description: String,
+    selected: Boolean,
     onClick: () -> Unit
 ) {
-    val boxModifier = if (isSelected) {
-        Modifier
-            .background(
-                color = Color(0xFF0A1B30),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .border(
-                width = 1.5.dp,
-                color = ArcadeColors.CyanBorder,
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(horizontal = 22.dp, vertical = 6.dp)
-    } else {
-        Modifier
-            .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 6.dp)
-    }
-
     Box(
-        modifier = boxModifier,
+        modifier = Modifier
+            .size(42.dp)
+            .background(
+                color = if (selected) Color(0xFF0A1B30) else Color.Transparent,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = if (isSelected) ArcadeColors.CyanPrimary else ArcadeColors.TextMuted,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = label,
-                color = if (isSelected) ArcadeColors.CyanPrimary else ArcadeColors.TextMuted,
-                fontSize = 10.5.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-            )
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = description,
+            tint = if (selected) ArcadeColors.CyanPrimary else Color.White,
+            modifier = Modifier.size(22.dp)
+        )
     }
 }
