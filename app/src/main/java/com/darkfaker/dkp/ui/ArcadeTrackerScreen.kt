@@ -879,7 +879,7 @@ fun ArcadeTrackerScreen() {
                     }
                 )
                 SettingsLinkRow(
-                    label = "Visit GitHub",
+                    label = "View On GitHub",
                     onClick = {
                         runCatching {
                             context.startActivity(

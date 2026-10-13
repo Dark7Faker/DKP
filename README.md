@@ -17,7 +17,7 @@ See the [How to use guide](https://darkfaker.notion.site/dkp-how-to-use) for ins
 
 ## Data and Network Usage
 
-The app only accesses data you enter, such as run details and app settings. It also uses the locale and time zone to format dates. The App does not access other personal data on your device, such as contacts, photos, or files. Run data and settings are stored locally on the device, and the app does not transmit data over the network. The app code makes no network requests and does not request internet access. Depending on device settings, Android may still back up app data. 
+See the [Privacy Policy](https://darkfaker.notion.site/privacy-policy).
 
 ## Independence from Donkey Kong
 
